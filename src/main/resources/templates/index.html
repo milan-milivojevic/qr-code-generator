@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>BITZER - QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: whitesmoke;
+            margin: 0;
+        }
+        #main-wrapper {
+            width: 80%;
+            height: 80%;
+            border: 1px solid green;
+        }
+    </style>
+</head>
+<body>
+<div id="main-wrapper">
+
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let message = null;
+    let app_version = null;
+    try {
+        message = [[${message}]];
+        app_version = [[${appVersion}]];
+
+        console.log(message);
+        console.log(app_version)
+    } catch (e) {
+        console.log("Model variables not found", e);
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>
