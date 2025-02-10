@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>BITZER - QR Code Generator</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <!-- Main App CSS -->
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <!-- Vue JS -->
+    <script th:src="@{/js/vue.global.prod.js}"></script>
+</head>
+<body>
+
+<div id="app" class="container mt-4">
+    <h2 class="text-primary">QR Code Campaigns</h2>
+
+    <div v-for="qr in qrCodes" class="card mb-3 p-3 shadow-sm">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>KAMPAGNEN-NAME:</strong> {{ qr.name }} <br>
+                        <strong>KAMPAGNEN-MEDIUM:</strong> {{ qr.medium }} <br>
+                        <strong>KAMPAGNEN-BEGRIFF:</strong> {{ qr.term }} <br>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>QR-CODE ID:</strong> {{ qr.id }} <br>
+                        <strong>KAMPAGNEN-CONTENT:</strong> {{ qr.content }} <br>
+                        <strong>SPRACHE:</strong> {{ qr.language }} <br>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <strong>URL-KODIERT:</strong>
+                    <input type="text" class="form-control" :value="qr.encodedUrl" readonly>
+                </div>
+                <div class="mt-2" v-if="qr.trackingUrl">
+                    <strong>TRACKING-URL:</strong>
+                    <input type="text" class="form-control" :value="qr.trackingUrl" readonly>
+                </div>
+            </div>
+            <div class="col-md-3 text-center">
+                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + qr.encodedUrl"
+                     alt="QR Code" class="img-fluid">
+                <div class="mt-2">
+                    <button class="btn btn-success btn-sm me-2"><i class="fas fa-pencil-alt"></i> Edit</button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let qrCodes = [];
+    try {
+        qrCodes = [[${qrCodes}]];
+    } catch (e) {
+        console.log("Model variables not found", e);
+    }
+    /*]]>*/
+
+
+
+
+    // VUE APP
+    const app = Vue.createApp({
+        data() {
+            return {
+                qrCodes: qrCodes || []
+            };
+        }
+    });
+
+    app.mount("#app");
+</script>
+
+
+<!-- Bootstrap JS -->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
