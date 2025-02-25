@@ -3,81 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <title>BITZER - QR Code Generator</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
-    <!-- Main App CSS -->
-    <link rel="stylesheet" th:href="@{/css/main.css}"/>
-    <!-- Vue JS -->
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}" />
     <script th:src="@{/js/vue.global.prod.js}"></script>
+    <script th:src="@{/js/commons.js}"></script>
 </head>
 <body>
 
-<div id="app" class="container mt-4">
-    <h2 class="text-primary">QR Code Campaigns</h2>
-
-    <div v-for="qr in qrCodes" class="card mb-3 p-3 shadow-sm">
-        <div class="row">
-            <div class="col-md-9">
-                <div class="row">
-                    <div class="col-md-6">
-                        <strong>KAMPAGNEN-NAME:</strong> {{ qr.name }} <br>
-                        <strong>KAMPAGNEN-MEDIUM:</strong> {{ qr.medium }} <br>
-                        <strong>KAMPAGNEN-BEGRIFF:</strong> {{ qr.term }} <br>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>QR-CODE ID:</strong> {{ qr.id }} <br>
-                        <strong>KAMPAGNEN-CONTENT:</strong> {{ qr.content }} <br>
-                        <strong>SPRACHE:</strong> {{ qr.language }} <br>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <strong>URL-KODIERT:</strong>
-                    <input type="text" class="form-control" :value="qr.encodedUrl" readonly>
-                </div>
-                <div class="mt-2" v-if="qr.trackingUrl">
-                    <strong>TRACKING-URL:</strong>
-                    <input type="text" class="form-control" :value="qr.trackingUrl" readonly>
-                </div>
-            </div>
-            <div class="col-md-3 text-center">
-                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + qr.encodedUrl"
-                     alt="QR Code" class="img-fluid">
-                <div class="mt-2">
-                    <button class="btn btn-success btn-sm me-2"><i class="fas fa-pencil-alt"></i> Edit</button>
-                    <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Download</button>
-                </div>
-            </div>
-        </div>
+<div id="app">
+    <h1>QR Code Generator</h1>
+    <div id="search-create-container">
+        <input type="text" id="search-input" placeholder="Search">
+        <button id="create-button">Create New QR Code</button>
+    </div>
+    <div id="qr-container"></div>
+    <div class="pagination">
+        <button id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn" onclick="nextPage()">Next</button>
     </div>
 </div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    let qrCodes = [];
+    let qrCodes;
     try {
         qrCodes = [[${qrCodes}]];
     } catch (e) {
-        console.log("Model variables not found", e);
+        cLog("Model loading error ", e);
     }
     /*]]>*/
 
+    if (qrCodes !== null) {
+        cLog("QR Codes loaded. " + MESSAGE);
+        console.log(qrCodes)
 
+        // 1. generate qr codes list
+        renderQRCodes();
 
+    } else {
+        document.getElementById('app').innerHTML = `Error: QR Codes could not be loaded.`;
+        cLog("ERROR: QR Codes not loaded.");
+    }
 
-    // VUE APP
-    const app = Vue.createApp({
-        data() {
-            return {
-                qrCodes: qrCodes || []
-            };
+    function renderQRCodes() {
+        const container = document.getElementById("qr-container");
+        container.innerHTML = "";  // Clear previous content
+
+        const startIndex = (currentPage - 1) * itemsPerPage; // variables set in commons.js
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedItems = qrCodes.slice(startIndex, endIndex);
+
+        paginatedItems.forEach(qrCode => {
+            const qrCodeId = qrCode.id;
+            const qrCodeName = qrCode.name;
+            const createDate = qrCode.createDate;
+            const createDateOnly = new Date(createDate).toLocaleDateString("de-DE");
+            const campaignName = qrCode.attributeValues.find(attr => attr.attributeName === "campaign_name")?.value || "Not Found";
+            const campaignMedium = qrCode.attributeValues.find(attr => attr.attributeName === "campaign_medium")?.value || "Not Found";
+            const campaignSubject = qrCode.attributeValues.find(attr => attr.attributeName === "campaign_subject")?.value || "Not Found";
+            const urlCode = qrCode.attributeValues.find(attr => attr.attributeName === "url_code")?.value || "Not Found";
+            const urlEncoded = qrCode.attributeValues.find(attr => attr.attributeName === "url_encoded")?.value || "Not Found";
+            const trackingUrl = qrCode.attributeValues.find(attr => attr.attributeName === "tracking_url")?.value || "Not Found";
+            const language = qrCode.attributeValues.find(attr => attr.attributeName === "language")?.value || "Not Found";
+            const additionalInfo = qrCode.attributeValues.find(attr => attr.attributeName === "additional_information")?.value || "Not Found";
+
+            const qrDiv = document.createElement("div");
+            qrDiv.classList.add("qr-code-container");
+
+            qrDiv.innerHTML = `
+            <div class="qr-lay-1">
+                <div class="qr-lay-1-1">
+                    <div class="qr-lay-1-1-1">
+                        <div class="qr-lay-field">
+                            <b>Campaign-Name</b><br>
+                            ${campaignName}
+                        </div>
+                        <div class="qr-lay-field">
+                            <b>Campaign-Medium</b><br>
+                            ${campaignMedium}
+                        </div>
+                    </div>
+                    <div class="qr-lay-1-1-2">
+                        <div class="qr-lay-field">
+                            <b>URL Code</b><br>
+                            ${urlCode}
+                        </div>
+                        <div class="qr-lay-field">
+                            <b>Additional Information</b><br>
+                            ${additionalInfo}
+                        </div>
+                    </div>
+                </div>
+                <div class="qr-lay-1-2">
+                    <div class="qr-lay-field">
+                        <b>Language</b><br>
+                        ${language}
+                    </div>
+                </div>
+                <div class="qr-lay-1-3">
+                    <div class="qr-lay-field">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${urlEncoded}" />
+                    </div>
+                </div>
+            </div>
+            <div class="qr-lay-2">
+                <div class="qr-lay-2-1">
+                    <div class="qr-lay-2-1-1">
+                        <div class="qr-lay-2-1-1-1 qr-lay-field">
+                            <b>URL Encoded</b><br>
+                            <input type="text" placeholder="${urlEncoded}">
+                        </div>
+                        <div class="qr-lay-2-1-1-2">
+                            <div class="qr-lay-2-1-1-2-1">
+                                <div class="qr-lay-field">
+                                    <b>Created</b><br>
+                                    ${createDateOnly}
+                                </div>
+                            </div>
+                            <div class="qr-lay-2-1-1-2-2">
+                                <div class="qr-lay-field">
+                                    <b>Published</b> <input type="checkbox">
+                                </div>
+                            </div>
+                        </div>
+<!--                        <div class="qr-lay-2-1-1-3"></div>-->
+                    </div>
+                    <div class="qr-lay-2-1-2 qr-lay-field">
+                        <b>Tracking URL</b><br>
+                        <input type="text" placeholder="${trackingUrl}">
+                    </div>
+                </div>
+                <div class="qr-lay-2-2"></div>
+            </div>
+            `;
+
+            // const title = document.createElement("h3");
+            // title.textContent = qrCode.name;
+            // qrDiv.appendChild(title);
+            //
+            //
+            // qrCode.attributeValues.forEach(attr => {
+            //     const fieldDiv = document.createElement("div");
+            //     fieldDiv.classList.add("attribute-field");
+            //
+            //     const label = document.createElement("label");
+            //     label.setAttribute("for", attr.attributeName);
+            //     label.textContent = attr.attributeName;
+            //
+            //     const input = document.createElement("input");
+            //     input.setAttribute("type", "text");
+            //     input.setAttribute("id", attr.attributeName);
+            //     input.setAttribute("name", attr.attributeName);
+            //     input.value = attr.value;
+            //
+            //     fieldDiv.appendChild(label);
+            //     fieldDiv.appendChild(input);
+            //     qrDiv.appendChild(fieldDiv);
+            // });
+
+            container.appendChild(qrDiv);
+        });
+
+        updatePaginationButtons();
+    }
+
+    function updatePaginationButtons() {
+        document.getElementById("prevBtn").disabled = currentPage === 1;
+        document.getElementById("nextBtn").disabled = currentPage * itemsPerPage >= qrCodes.length;
+        document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${Math.ceil(qrCodes.length / itemsPerPage)}`;
+        if (currentPage === 1) {document.getElementById("prevBtn").classList.add('dis-button')}
+        else {document.getElementById("prevBtn").classList.remove('dis-button')}
+        if (currentPage * itemsPerPage >= qrCodes.length) {document.getElementById("nextBtn").classList.add('dis-button')}
+        else {document.getElementById("nextBtn").classList.remove('dis-button')}
+    }
+
+    function nextPage() {
+        if (currentPage * itemsPerPage < qrCodes.length) {
+            currentPage++;
+            renderQRCodes();
         }
-    });
+    }
 
-    app.mount("#app");
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderQRCodes();
+        }
+    }
+
 </script>
-
-
-<!-- Bootstrap JS -->
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

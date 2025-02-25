@@ -41,12 +41,8 @@ public class AppProperties {
         return env.getProperty("server.password");
     }
 
-    public String getTestInstanceId() {
-        return env.getProperty("test.instance.id");
-    }
+    public String getCustomStructureId() { return env.getProperty("custom.structure.id"); }
 
-    public String getTestMaplEl() {
-        return env.getProperty("test.mapl.el");
-    }
+
 
 }

@@ -7,49 +7,38 @@
     <link rel="stylesheet" th:href="@{/css/main.css}" />
     <!-- Vue JS -->
     <script th:src="@{/js/vue.global.prod.js}"></script>
+    <script th:src="@{js/commons.js}"></script>
+    <style>
+        .qr-code-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .attribute-field {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
-<div id="app" id="main-app">
-    <div id="search-create-div">
-
-    </div>
-
-    <div id="qr-codes-list-div">
-
-    </div>
-
-    <div v-for="qr in qrCodes">
-        <div id="single-card-div">
-            <div id="single-card-left-div">
-                <div class="row">
-                    <div class="col-md-6">
-                        <strong>KAMPAGNEN-NAME:</strong> {{ qr.name }} <br>
-                        <strong>KAMPAGNEN-MEDIUM:</strong> {{ qr.medium }} <br>
-                        <strong>KAMPAGNEN-BEGRIFF:</strong> {{ qr.term }} <br>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>QR-CODE ID:</strong> {{ qr.id }} <br>
-                        <strong>KAMPAGNEN-CONTENT:</strong> {{ qr.content }} <br>
-                        <strong>SPRACHE:</strong> {{ qr.language }} <br>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <strong>URL-KODIERT:</strong>
-                    <input type="text" class="form-control" :value="qr.encodedUrl" readonly>
-                </div>
-                <div class="mt-2" v-if="qr.trackingUrl">
-                    <strong>TRACKING-URL:</strong>
-                    <input type="text" class="form-control" :value="qr.trackingUrl" readonly>
-                </div>
-            </div>
-            <div id="single-card-right-div">
-                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + qr.encodedUrl" alt="QR Code" class="img-fluid">
-                <div class="mt-2">
-                    <button class="btn btn-success btn-sm me-2"><i class="fas fa-pencil-alt"></i> Edit</button>
-                    <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Download</button>
-                </div>
-            </div>
+<div id="app">
+    <div v-for="qrCode in qrCodes" :key="qrCode.id" class="qr-code-container">
+        <h3>{{ qrCode.name }}</h3>
+        <div v-for="attr in qrCode.attributeValues" :key="attr.attributeName" class="attribute-field">
+            <label :for="attr.attributeName">{{ attr.attributeName }}</label>
+            <input :id="attr.attributeName" type="text" v-model="attr.value" />
         </div>
     </div>
 </div>
@@ -60,15 +49,21 @@
     let qrCodes = [];
     try {
         qrCodes = [[${qrCodes}]];
+        console.log(qrCodes)
     } catch (e) {
         console.log("Model variables not found", e);
     }
     /*]]>*/
     const app = Vue.createApp({
         data() {
+            console.log("Vue app initialized with:", qrCodes);
             return {
                 qrCodes: qrCodes || []
             };
+        },
+        mounted() {
+            console.log("Vue app mounted, qrCodes:", this.qrCodes);
+            console.log(MESSAGE);
         }
     });
 
