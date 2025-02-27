@@ -20,7 +20,7 @@ https://jira-brandmaker.atlassian.net/wiki/spaces/PSBEI/pages/845938729/QR-Code+
 
 TODO:
 
-1. Complete backend with CS/CO
-2. UI
-3. User permission
-4. Language
+1. User permission
+2. Language translation
+3. Search
+4. List view (optional)

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>BITZER - QR Code Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}" />
     <script th:src="@{/js/vue.global.prod.js}"></script>
     <script th:src="@{/js/commons.js}"></script>
@@ -13,7 +14,7 @@
     <h1>QR CODE GENERATOR</h1>
     <div id="search-create-container">
         <input type="text" id="search-input" placeholder="Search">
-        <button id="create-button" onclick="createNewQrCode()">Create New QR Code</button>
+        <button id="create-button" onclick="displayCreateModal()">Create New QR Code</button>
     </div>
     <div id="qr-container"></div>
     <div class="pagination">
@@ -36,13 +37,9 @@
     if (qrCodes !== null) {
         cLog("QR Codes loaded. " + MESSAGE);
         console.log(qrCodes);
+        qrCodes.reverse();
 
         renderQRCodes();
-
-        //TEST PUBLISHED
-        let element = document.querySelector('[data-qrid="1545"]').querySelector(".switch input");
-        console.log(element.checked);
-
     } else {
         document.getElementById('app').innerHTML = `Error: QR Codes could not be loaded.`;
         cLog("ERROR: QR Codes not loaded.");
@@ -120,7 +117,7 @@
                     <div class="qr-lay-2-1-1">
                         <div class="qr-lay-2-1-1-1 qr-lay-field">
                             <b>URL Encoded</b><br>
-                            <input type="text" placeholder="${urlEncoded}">
+                            <input type="text" placeholder="${urlEncoded}" readonly>
                         </div>
                         <div class="qr-lay-2-1-1-2">
                             <div class="qr-lay-2-1-1-2-1">
@@ -133,7 +130,7 @@
                                 <div class="qr-lay-field">
                                     <b>Published</b>
                                     <label class="switch">
-                                        <input type="checkbox" ${published} disabled>
+                                        <input type="checkbox" ${published}>
                                         <span class="slider round"></span>
                                     </label>
                                 </div>
@@ -143,12 +140,13 @@
                     </div>
                     <div class="qr-lay-2-1-2 qr-lay-field">
                         <b>Tracking URL</b><br>
-                        <input type="text" placeholder="${trackingUrl}">
+                        <input type="text" placeholder="${trackingUrl}" readonly>
                     </div>
                 </div>
-                <div class="qr-lay-2-2"></div>
-            </div>
-            `;
+                <div class="qr-lay-2-2">
+                    <i class="fas fa-pencil-alt icon-container"    onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i><br>
+                    <i class="fas fa-trash icon-container" onclick="displayDeleteModal(${qrCodeId})"></i><br>
+                    <i class="fas fa-download icon-container" onclick="displayDownloadModal('${qrCodeId}','${campaignName}')"></i>`;
 
             container.appendChild(qrDiv);
         });
@@ -180,24 +178,34 @@
         }
     }
 
-    function createNewQrCode() {
-        displayCreateEditModal();
-    }
-
-    function displayCreateEditModal() {
+    function displayCreateModal() {
         const appDiv = document.getElementById('app');
         const modalDiv = document.createElement("div");
         modalDiv.setAttribute("id", "ce-modal-container");
 
         modalDiv.innerHTML = `
         <div id="ce-modal">
-            <button id="close-modal-button" onclick="closeModal()">x</button>
-            <input type="text" placeholder="Campaign Name"><br>
-            <input type="text" placeholder="Campaign Medium"><br>
-            <input type="text" placeholder="Language"><br>
-            <input type="text" placeholder="Tracking URL"><br>
-            <input type="text" placeholder="Additional Information"><br>
-            <button id="create-button">Create</button>
+            <button id="close-modal-button" onclick="closeModal('ce-modal-container')">x</button>
+            <h2 style="padding-top: 20px">Create new QR Code</h2>
+            <input type="text" placeholder="Campaign Name" id="campaign-name-input"><br>
+            <input type="text" list="mediums-list" placeholder="Campaign Medium" id="campaign-medium-input" autocomplete="off"><br>
+            <datalist id="mediums-list">
+                <option value="Flyer">
+                <option value="Brochure">
+                <option value="Postcard">
+                <option value="Advert">
+                <option value="Roll-up">
+                <option value="Poster">
+                <option value="Merchandise">
+            </datalist>
+            <input type="text" list="lang-list" placeholder="Language" id="language-input" autocomplete="off"><br>
+            <datalist id="lang-list">
+                <option value="German">
+                <option value="English">
+            </datalist>
+            <input type="text" placeholder="Tracking URL" id="tracking-url-input"><br>
+            <input type="text" placeholder="Additional Information" id="additional-info-input"><br>
+            <button id="create-button" onclick="doCreate()">Create</button>
         </div>
         `;
 
@@ -205,11 +213,268 @@
         document.body.style.overflow = "hidden"; // Disable scrolling
     }
 
-    function closeModal() {
-        const modalDiv = document.getElementById('ce-modal-container');
+    function closeModal(modalId) {
+        const modalDiv = document.getElementById(modalId);
         const appDiv = document.getElementById('app').removeChild(modalDiv);
         document.body.style.overflow = "auto"; // Enable scrolling
     }
+
+    function doCreate() {
+        let campName = document.getElementById('campaign-name-input').value;
+        let campMedium = document.getElementById('campaign-medium-input').value;
+        let lang = document.getElementById('language-input').value;
+        let trackingUrl = document.getElementById('tracking-url-input').value;
+        let addInfo = document.getElementById('additional-info-input').value;
+
+        let payload = {
+            campaignName: campName,
+            campaignMedium: campMedium,
+            language: lang,
+            trackingUrl: trackingUrl,
+            additionalInfo: addInfo
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (this.status === 201) {
+                cLog("save qr code success");
+                closeModal('ce-modal-container');
+                history.go(0);
+            } else {
+                cLog("save qr code error", this.status);
+            }
+        }
+        xhr.open("POST", "create-qr-code", false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify(payload));
+    }
+
+    function displayConfirmPublishModal(qrid, toPublish) {
+        console.log(`Publishing ${qrid} - ${toPublish}`);
+
+        const appDiv = document.getElementById('app');
+        let publishModal = document.createElement('div');
+        publishModal.setAttribute("id", "publish-modal-container");
+
+        publishModal.innerHTML = `
+        <div id="ce-modal">
+            <button id="close-modal-button" onclick="closeModal('publish-modal-container')">x</button>
+            <h2 style="padding-top: 20px">Please confirm publish update.</h2>
+            <button id="create-button" onclick="doPublishUpdate(${qrid}, ${toPublish})">Confirm</button>
+        </div>
+        `;
+
+        appDiv.appendChild(publishModal);
+        window.scrollTo(0, 0);
+        document.body.style.overflow = "hidden"; // Disable scrolling
+    }
+
+    function doPublishUpdate(qrid, toPublish) {
+        console.log(`Doing ${qrid} - ${toPublish}`);
+
+        let payload = {
+            qrId: qrid,
+            toPublish: toPublish
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (this.status === 200) {
+                cLog("publish update success");
+                closeModal('publish-modal-container');
+                history.go(0);
+            } else {
+                cLog("publish update error", this.status);
+            }
+        }
+        xhr.open("POST", "publish-update", false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify(payload));
+    }
+
+    function displayEditModal(qrCodeId, campaignName, campaignMedium, language, trackingUrl, additionalInfo) {
+        const appDiv = document.getElementById('app');
+        const modalDiv = document.createElement("div");
+        modalDiv.setAttribute("id", "edit-modal-container");
+
+        modalDiv.innerHTML = `
+        <div id="ce-modal">
+            <button id="close-modal-button" onclick="closeModal('edit-modal-container')">x</button>
+            <h2 style="padding-top: 20px">Edit QR Code</h2>
+            <input type="text" placeholder="${campaignName}" id="campaign-name-input"><br>
+            <input type="text" list="mediums-list" placeholder="${campaignMedium}" id="campaign-medium-input" autocomplete="off"><br>
+            <datalist id="mediums-list">
+                <option value="Flyer">
+                <option value="Brochure">
+                <option value="Postcard">
+                <option value="Advert">
+                <option value="Roll-up">
+                <option value="Poster">
+                <option value="Merchandise">
+            </datalist>
+            <input type="text" list="lang-list" placeholder="${language}" id="language-input" autocomplete="off"><br>
+            <datalist id="lang-list">
+                <option value="German">
+                <option value="English">
+            </datalist>
+            <input type="text" placeholder="${trackingUrl}" id="tracking-url-input"><br>
+            <input type="text" placeholder="${additionalInfo}" id="additional-info-input"><br>
+            <button id="create-button" onclick="doEdit(${qrCodeId})">Edit</button>
+        </div>
+        `;
+
+        appDiv.appendChild(modalDiv);
+        document.body.style.overflow = "hidden"; // Disable scrolling
+    }
+
+    function doEdit(qrCodeId) {
+        let campName = document.getElementById('campaign-name-input').value;
+        let campMedium = document.getElementById('campaign-medium-input').value;
+        let lang = document.getElementById('language-input').value;
+        let trackingUrl = document.getElementById('tracking-url-input').value;
+        let addInfo = document.getElementById('additional-info-input').value;
+
+        let payload = {
+            campaignName: campName,
+            campaignMedium: campMedium,
+            language: lang,
+            trackingUrl: trackingUrl,
+            additionalInfo: addInfo
+        }
+
+        console.log("edit payload: ", payload);
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (this.status === 200) {
+                cLog("edit qr code success");
+                closeModal('edit-modal-container');
+                history.go(0);
+            } else {
+                cLog("edit qr code error", this.status);
+            }
+        }
+        xhr.open("PUT", "edit-qr-code/" + qrCodeId, false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify(payload));
+    }
+
+    function displayDeleteModal(qrCodeId) {
+        const appDiv = document.getElementById('app');
+        let publishModal = document.createElement('div');
+        publishModal.setAttribute("id", "delete-modal-container");
+
+        publishModal.innerHTML = `
+        <div id="ce-modal">
+            <button id="close-modal-button" onclick="closeModal('delete-modal-container')">x</button>
+            <h2 style="padding-top: 20px">Please confirm delete.</h2>
+            <button id="create-button" onclick="doDelete(${qrCodeId})">Confirm</button>
+        </div>
+        `;
+
+        appDiv.appendChild(publishModal);
+        window.scrollTo(0, 0);
+        document.body.style.overflow = "hidden"; // Disable scrolling
+    }
+
+    function doDelete(qrCodeId) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (this.status === 200) {
+                cLog("delete success");
+                closeModal('delete-modal-container');
+                history.go(0);
+            } else {
+                cLog("delete error", this.status);
+            }
+        }
+        xhr.open("DELETE", "delete/" + qrCodeId, false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send();
+    }
+
+    function displayDownloadModal(qrCodeId, campaignName) {
+        const appDiv = document.getElementById('app');
+        let publishModal = document.createElement('div');
+        publishModal.setAttribute("id", "download-modal-container");
+
+        publishModal.innerHTML = `
+        <div id="ce-modal">
+            <button id="close-modal-button" onclick="closeModal('download-modal-container')">x</button>
+            <h2 style="padding-top: 20px">Download QR Code</h2>
+            <label>Format:</label>
+            <select id="format">
+                <option value="png">PNG</option>
+                <option value="eps">EPS</option>
+            </select><br><br>
+
+            <label>Background Color:</label>
+            <select id="color">
+                <option value="black">Black</option>
+                <option value="white">White</option>
+                <option value="green">Green</option>
+            </select><br><br>
+
+            <label>Color Model:</label>
+            <select id="model">
+                <option value="rgb">RGB</option>
+                <option value="cmyk">CMYK</option>
+            </select><br><br>
+            <button id="create-button" onclick="doDownload('${qrCodeId}', '${campaignName}')">Download</button>
+        </div>
+        `;
+
+        appDiv.appendChild(publishModal);
+        window.scrollTo(0, 0);
+        document.body.style.overflow = "hidden"; // Disable scrolling
+    }
+
+    function doDownload(qrCodeId, campaignName) {
+        let format = document.getElementById("format").value;
+        let color = document.getElementById("color").value;
+        let model = document.getElementById("model").value;
+
+        console.log("Download Payload:", { qrFormat: format, qrColor: color, qrModel: model });
+
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = "blob";
+
+        xhr.onload = function () {
+            if (this.status === 200) {
+                console.log("Download QR Code Success");
+
+                // Create a blob from the response
+                let blob = new Blob([this.response], { type: xhr.getResponseHeader("Content-Type") });
+
+                // Create a download link
+                let link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `qr-code-${campaignName}.${format}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                closeModal('download-modal-container');
+            } else {
+                console.error("Download QR Code Error", this.status);
+            }
+        };
+
+        xhr.open("GET", `/download-qr-code/${qrCodeId}?qrFormat=${format}&qrColor=${color}&qrModel=${model}`, true);
+        xhr.send();
+    }
+
+    // LISTEN FOR PUBLISHING EVENT
+    document.addEventListener("change", function(event) {
+        if (event.target.matches('.switch input[type="checkbox"]')) {
+            let qrCodeContainer = event.target.closest(".qr-code-container");
+            if (qrCodeContainer) {
+                let qrid = qrCodeContainer.getAttribute("data-qrid");
+                let isChecked = event.target.checked;
+                console.log(`QR ID: ${qrid}, Published: ${isChecked ? 'true' : 'false'}`);
+                displayConfirmPublishModal(qrid, isChecked ? 'true' : 'false');
+            }
+        }
+    });
 
 </script>
 </body>

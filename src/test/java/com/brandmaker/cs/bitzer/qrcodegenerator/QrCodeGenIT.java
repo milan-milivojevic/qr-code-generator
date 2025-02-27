@@ -51,6 +51,40 @@ class QrCodeGenIT {
     }
 
     @Test
+    void test_updateCustomObject_2() {
+        String customStructureId = appProperties.getCustomStructureId();
+        int objectId = 1553;
+
+        CustomObjectDTO customObjectDTO = csCoRest.getCustomObjectById(objectId);
+
+        System.out.println(customObjectDTO.getAttributeValues());
+
+        List<CustomObjectAttributeValueDTO> attributeValues = customObjectDTO.getAttributeValues();
+
+        for (CustomObjectAttributeValueDTO attr : attributeValues) {
+            if ("published".equals(attr.getAttributeName())) {
+                attr.setValue("true");
+                break;
+            }
+        }
+
+        CustomObjectCreateDTO createDTO = new CustomObjectCreateDTO();
+        createDTO.setParentId(customObjectDTO.getParentId());
+        createDTO.setLabel(customObjectDTO.getLabel());
+        createDTO.setName(customObjectDTO.getName());
+        createDTO.setState("EDIT_AND_ADD");
+        createDTO.setCustomStructureId(Integer.valueOf(customStructureId));
+        createDTO.setAttributeValues(attributeValues);
+
+        Response response = csCoRest.updateCustomObject(objectId, createDTO);
+
+        Assertions.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        log.info(response.readEntity(String.class));
+        log.info("Test DONE!");
+
+    }
+
+    @Test
     void test_createCustomObject() {
         String customStructureId = appProperties.getCustomStructureId();
 
