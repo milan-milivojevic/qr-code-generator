@@ -540,6 +540,7 @@
                 console.log("Download QR Code Success");
 
                 // Create a blob from the response
+                console.log("Response for blob: ", this.response);
                 let blob = new Blob([this.response], { type: xhr.getResponseHeader("Content-Type") });
 
                 // Create a download link
@@ -555,7 +556,7 @@
             }
         };
 
-        xhr.open("GET", `/download-qr-code/${qrCodeId}?qrFormat=${format}&qrColor=${color}&qrModel=${model}`, true);
+        xhr.open("GET", `download-qr-code/${qrCodeId}?qrFormat=${format}&qrColor=${color}&qrModel=${model}`, true);
         xhr.send();
     }
 

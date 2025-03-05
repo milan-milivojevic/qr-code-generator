@@ -233,7 +233,7 @@ public class MainService {
             };
 
             // Generate QR Code
-            String qrText = fetchQrTextFromCO(customObjectDTO); // Implement this method
+            String qrText = fetchQrTextFromCO(customObjectDTO);
             BitMatrix bitMatrix = new QRCodeWriter().encode(qrText, BarcodeFormat.QR_CODE, size, size);
 
             try (OutputStream out = response.getOutputStream()) {
