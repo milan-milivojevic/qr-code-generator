@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Data
 @AllArgsConstructor
@@ -28,15 +29,13 @@ public class CustomObjectDTO implements Serializable {
     private String createDate;
     private String updateDate;
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof CustomObjectDto that)) return false;
-//        return id == that.id && parentId == that.parentId && lastEditedUserId == that.lastEditedUserId && Objects.equals(name, that.name) && Objects.equals(label, that.label) && state == that.state && Objects.equals(affiliate, that.affiliate) && Objects.equals(attributeValues, that.attributeValues) && Objects.equals(customStructure, that.customStructure) && Objects.equals(createDate, that.createDate) && Objects.equals(updateDate, that.updateDate);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(id, parentId, name, label, state, affiliate, lastEditedUserId, attributeValues, customStructure, createDate, updateDate);
-//    }
+    public Optional<String> getAttributeValue(String attributeName) {
+        if (attributeValues == null) {
+            return Optional.empty();
+        }
+        return attributeValues.stream()
+                .filter(av -> attributeName.equals(av.getAttributeName()))
+                .map(CustomObjectAttributeValueDTO::getValue)
+                .findFirst();
+    }
 }

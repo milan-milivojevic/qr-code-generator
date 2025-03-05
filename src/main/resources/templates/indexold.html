@@ -5,6 +5,7 @@
     <title>BITZER - QR Code Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().getTime()})}" />
+    <script th:src="@{/js/vue.global.prod.js}"></script>
     <script th:src="@{/js/commons.js}"></script>
 </head>
 <body>
@@ -12,7 +13,7 @@
 <div id="app">
     <h1 data-translate-key="1">QR CODE GENERATOR</h1>
     <div id="search-create-container">
-        <input type="text" id="search-input" data-translate-key="2" placeholder="Search"/>
+        <input type="text" id="search-input" data-translate-key="2" placeholder="Search">
         <button id="create-button" data-translate-key="3" onclick="displayCreateModal()">Create New QR Code</button>
     </div>
     <div id="qr-container"></div>
@@ -25,26 +26,19 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // allQRCodes (master list), and qrCodes (filtered list).
-    let allQRCodes = [];
-    let qrCodes = [];
-
+    let qrCodes;
     try {
-        allQRCodes = [[${qrCodes}]];  // Load from backend
+        qrCodes = [[${qrCodes}]];
     } catch (e) {
         cLog("Model loading error ", e);
     }
     /*]]>*/
 
-    if (allQRCodes !== null && allQRCodes.length > 0) {
+    if (qrCodes !== null) {
         cLog("QR Codes loaded. " + MESSAGE);
-        console.log(allQRCodes);
+        console.log(qrCodes);
+        qrCodes.reverse();
 
-        // Reverse for the newest first
-        allQRCodes.reverse();
-
-        // Initially, display all codes
-        qrCodes = allQRCodes.slice();  // Make a copy
         getCurrentUser(); // sets language and privileges
         renderQRCodes();
         doTranslate('app');
@@ -53,46 +47,12 @@
         cLog("ERROR: QR Codes not loaded.");
     }
 
-    function searchQRCodes() {
-        const term = document.getElementById('search-input').value.trim().toLowerCase();
-        console.log("TERM:", term);
-
-        if (!term) {
-            // No search => restore the full list
-            qrCodes = allQRCodes.slice();
-        } else {
-            qrCodes = allQRCodes.filter(qr => {
-                // 1) Start with the qr.name
-                let combinedText = (qr.name || "").toLowerCase();
-
-                // 2) Append all attributeValues
-                if (Array.isArray(qr.attributeValues)) {
-                    qr.attributeValues.forEach(attr => {
-                        // Merge each attribute value into the combinedText
-                        if (attr.value) {
-                            combinedText += " " + attr.value.toLowerCase();
-                        }
-                    });
-                }
-
-                // 3) Return true if combinedText has the search term
-                return combinedText.includes(term);
-            });
-        }
-
-        currentPage = 1;
-        renderQRCodes();
-        doTranslate('app');
-    }
-
     function renderQRCodes() {
         const container = document.getElementById("qr-container");
         container.innerHTML = "";  // Clear previous content
 
-        const startIndex = (currentPage - 1) * itemsPerPage; // these come from commons.js
+        const startIndex = (currentPage - 1) * itemsPerPage; // variables set in commons.js
         const endIndex = startIndex + itemsPerPage;
-
-        // If qrCodes is empty or has fewer items, handle it gracefully
         const paginatedItems = qrCodes.slice(startIndex, endIndex);
 
         paginatedItems.forEach(qrCode => {
@@ -100,8 +60,6 @@
             const qrCodeName = qrCode.name;
             const createDate = qrCode.createDate;
             const createDateOnly = new Date(createDate).toLocaleDateString("de-DE");
-
-            // Extract attributes
             const campaignName = qrCode.attributeValues.find(attr => attr.attributeName === "campaign_name")?.value || "Not Found";
             const campaignMedium = qrCode.attributeValues.find(attr => attr.attributeName === "campaign_medium")?.value || "Not Found";
             const campaignSubject = qrCode.attributeValues.find(attr => attr.attributeName === "campaign_subject")?.value || "Not Found";
@@ -111,136 +69,102 @@
             const language = qrCode.attributeValues.find(attr => attr.attributeName === "language")?.value || "Not Found";
             const additionalInfo = qrCode.attributeValues.find(attr => attr.attributeName === "additional_information")?.value || "Not Found";
             const publishedValue = qrCode.attributeValues.find(attr => attr.attributeName === "published")?.value || "Not Found";
-
-            let published = "";
+            let published = ""
             if (publishedValue === "true") {
                 published = "checked";
             }
 
-            // Build the HTML
             const qrDiv = document.createElement("div");
             qrDiv.classList.add("qr-code-container");
             qrDiv.dataset.qrid = qrCodeId;
 
             qrDiv.innerHTML = `
-                <div class="qr-lay-1">
-                    <div class="qr-lay-1-1">
-                        <div class="qr-lay-1-1-1">
-                            <div class="qr-lay-field">
-                                <b data-translate-key="4" >Campaign Name</b><br>
-                                ${campaignName}
-                            </div>
-                            <div class="qr-lay-field">
-                                <b data-translate-key="5">Campaign Medium</b><br>
-                                ${campaignMedium}
-                            </div>
+            <div class="qr-lay-1">
+                <div class="qr-lay-1-1">
+                    <div class="qr-lay-1-1-1">
+                        <div class="qr-lay-field">
+                            <b data-translate-key="4" >Campaign Name</b><br>
+                            ${campaignName}
                         </div>
-                        <div class="qr-lay-1-1-2">
-                            <div class="qr-lay-field">
-                                <b data-translate-key="7">URL Code</b><br>
-                                ${urlCode}
-                            </div>
-                            <div class="qr-lay-field">
-                                <b data-translate-key="8">Additional Information</b><br>
-                                ${additionalInfo}
-                            </div>
+                        <div class="qr-lay-field">
+                            <b data-translate-key="5">Campaign Medium</b><br>
+                            ${campaignMedium}
                         </div>
                     </div>
-                    <div class="qr-lay-1-2">
+                    <div class="qr-lay-1-1-2">
                         <div class="qr-lay-field">
-                            <b data-translate-key="6">Language</b><br>
-                            ${language}
+                            <b data-translate-key="7">URL Code</b><br>
+                            ${urlCode}
                         </div>
-                    </div>
-                    <div class="qr-lay-1-3">
                         <div class="qr-lay-field">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${urlEncoded}" alt="QR Code"/>
+                            <b data-translate-key="8">Additional Information</b><br>
+                            ${additionalInfo}
                         </div>
                     </div>
                 </div>
-                <div class="qr-lay-2">
-                    <div class="qr-lay-2-1">
-                        <div class="qr-lay-2-1-1">
-                            <div class="qr-lay-2-1-1-1 qr-lay-field">
-                                <b data-translate-key="9">URL Encoded</b><br>
-                                <input type="text" placeholder="${urlEncoded}" readonly>
-                            </div>
-                            <div class="qr-lay-2-1-1-2">
-                                <div class="qr-lay-2-1-1-2-1">
-                                    <div class="qr-lay-field">
-                                        <b data-translate-key="10">Created</b><br>
-                                        ${createDateOnly}
-                                    </div>
-                                </div>
-                                <div class="qr-lay-2-1-1-2-2">
-                                    <div class="qr-lay-field">
-                                        <b data-translate-key="11">Published</b>
-                                        <label class="switch">
-                                            <input type="checkbox" ${published}>
-                                            <span class="slider round"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="qr-lay-2-1-2 qr-lay-field">
-                            <b data-translate-key="12">Tracking URL</b><br>
-                            <input type="text" placeholder="${trackingUrl}" readonly>
-                        </div>
-                    </div>
-                    <div class="qr-lay-2-2">
-                        <i class="fas fa-pencil-alt icon-container"
-                           onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i><br>
-                        <i class="fas fa-trash icon-container" onclick="displayDeleteModal(${qrCodeId})"></i><br>
-                        <i class="fas fa-download icon-container" onclick="displayDownloadModal('${qrCodeId}','${campaignName}')"></i>
+                <div class="qr-lay-1-2">
+                    <div class="qr-lay-field">
+                        <b data-translate-key="6">Language</b><br>
+                        ${language}
                     </div>
                 </div>
-            `;
+                <div class="qr-lay-1-3">
+                    <div class="qr-lay-field">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${urlEncoded}" alt="QR Code"/>
+                    </div>
+                </div>
+            </div>
+            <div class="qr-lay-2">
+                <div class="qr-lay-2-1">
+                    <div class="qr-lay-2-1-1">
+                        <div class="qr-lay-2-1-1-1 qr-lay-field">
+                            <b data-translate-key="9">URL Encoded</b><br>
+                            <input type="text" placeholder="${urlEncoded}" readonly>
+                        </div>
+                        <div class="qr-lay-2-1-1-2">
+                            <div class="qr-lay-2-1-1-2-1">
+                                <div class="qr-lay-field">
+                                    <b data-translate-key="10">Created</b><br>
+                                    ${createDateOnly}
+                                </div>
+                            </div>
+                            <div class="qr-lay-2-1-1-2-2">
+                                <div class="qr-lay-field">
+                                    <b data-translate-key="11">Published</b>
+                                    <label class="switch">
+                                        <input type="checkbox" ${published}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+<!--                        <div class="qr-lay-2-1-1-3"></div>-->
+                    </div>
+                    <div class="qr-lay-2-1-2 qr-lay-field">
+                        <b data-translate-key="12">Tracking URL</b><br>
+                        <input type="text" placeholder="${trackingUrl}" readonly>
+                    </div>
+                </div>
+                <div class="qr-lay-2-2">
+                    <i class="fas fa-pencil-alt icon-container"    onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i><br>
+                    <i class="fas fa-trash icon-container" onclick="displayDeleteModal(${qrCodeId})"></i><br>
+                    <i class="fas fa-download icon-container" onclick="displayDownloadModal('${qrCodeId}','${campaignName}')"></i>`;
 
             container.appendChild(qrDiv);
-
-            // for list view
-            // const qrDiv2 = document.createElement("div");
-            // qrDiv2.classList.add("qr-code-container");
-            // qrDiv2.dataset.qrid = qrCodeId;
-            // qrDiv2.innerHTML = `
-            // <div class="list-qrcode-item">
-            //     <span>${urlCode}</span>
-            //     <span>${campaignSubject}</span>
-            //     <span>${campaignName}</span>
-            //     <span>${campaignMedium}</span>
-            //     <span>${createDate}</span>
-            //     <span><i class="fas fa-pencil-alt icon-container"
-            //                onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i></span>
-            //     <span><i class="fas fa-trash icon-container" onclick="displayDeleteModal(${qrCodeId})"></i></span>
-            //     <span><i class="fas fa-download icon-container" onclick="displayDownloadModal('${qrCodeId}','${campaignName}')"></i></span>
-            // </div>
-            // `;
-            // container.appendChild(qrDiv2);
         });
 
         updatePaginationButtons();
     }
 
     function updatePaginationButtons() {
-        document.getElementById("prevBtn").disabled = (currentPage === 1);
-        document.getElementById("nextBtn").disabled = (currentPage * itemsPerPage >= qrCodes.length);
-
+        document.getElementById("prevBtn").disabled = currentPage === 1;
+        document.getElementById("nextBtn").disabled = currentPage * itemsPerPage >= qrCodes.length;
         document.getElementById("pageInfo").innerHTML = `
-            <span data-translate-key="28">Page</span> ${currentPage}
-            <span data-translate-key="29">of</span> ${Math.ceil(qrCodes.length / itemsPerPage)}`;
-
-        if (currentPage === 1) {
-            document.getElementById("prevBtn").classList.add('dis-button');
-        } else {
-            document.getElementById("prevBtn").classList.remove('dis-button');
-        }
-
-        if (currentPage * itemsPerPage >= qrCodes.length) {
-            document.getElementById("nextBtn").classList.add('dis-button');
-        } else {
-            document.getElementById("nextBtn").classList.remove('dis-button');
-        }
+            <span data-translate-key="28">Page</span> ${currentPage} <span data-translate-key="29">of</span> ${Math.ceil(qrCodes.length / itemsPerPage)}`;
+        if (currentPage === 1) {document.getElementById("prevBtn").classList.add('dis-button')}
+        else {document.getElementById("prevBtn").classList.remove('dis-button')}
+        if (currentPage * itemsPerPage >= qrCodes.length) {document.getElementById("nextBtn").classList.add('dis-button')}
+        else {document.getElementById("nextBtn").classList.remove('dis-button')}
     }
 
     function nextPage() {
@@ -587,6 +511,7 @@
             // Select every element that has data-translate-key
             let rootEl = document.getElementById(rootElementId);
             rootEl.querySelectorAll("[data-translate-key]").forEach(element => {
+                // document.querySelectorAll("[data-translate-key]").forEach(element => {
                 const key = element.getAttribute("data-translate-key");
 
                 // Retrieve the text from translations object
@@ -614,12 +539,6 @@
                 displayConfirmPublishModal(qrid, isChecked ? 'true' : 'false');
             }
         }
-    });
-
-    // LISTEN FOR SEARCH EVENT
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchInput = document.getElementById("search-input");
-        searchInput.addEventListener("keyup", searchQRCodes);
     });
 
 </script>

@@ -16,33 +16,24 @@ public class AppProperties {
     public String getAppName() {
         return env.getProperty("spring.application.name");
     }
-
     public String getActiveProfile() {
         return env.getProperty("spring.profiles.active");
     }
-
     public String getAppVersion() {
         return env.getProperty("app.version");
     }
-
     public String getIsDevActive() {
         return env.getProperty("dev.is.active");
     }
-
     public String getWebApiRoot() {
         return env.getProperty("server.url");
     }
-
     public String getWebApiUsername() {
         return env.getProperty("server.username");
     }
-
     public String getWebApiPassword() {
         return env.getProperty("server.password");
     }
-
     public String getCustomStructureId() { return env.getProperty("custom.structure.id"); }
-
-
-
+    public String getBitzerUrl() { return env.getProperty("bitzer.home.url"); }
 }
