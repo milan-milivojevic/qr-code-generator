@@ -8,13 +8,15 @@ body {
     font-family: Tahoma, Arial, sans-serif;
 }
 #app {
+    display: none; /* until access rights are confirmed */
     width: 80%;
     margin: 0 auto;
     padding: 40px 0;
     background-color: white;
     border-radius: 10px;
     h1 {
-        width: 82%;
+        /*width: 82%;*/
+        width: 1030px;
         margin: 0 auto;
         padding-bottom: 25px;
         color: var(--b_green);
@@ -27,7 +29,8 @@ body {
     }
 }
 #search-create-container {
-    width: 82%;
+    /*width: 82%;*/
+    width: 1030px;
     height: 35px;
     margin: 0 auto;
     display: flex;
@@ -49,7 +52,8 @@ body {
     padding-top: 40px;
 }
 .qr-code-container {
-    width: 80%;
+    /*width: 80%;*/
+    width: 1000px;
     /*height: 350px;*/
     border: 1px solid #ddd;
     padding: 25px 15px 15px 15px;
@@ -138,7 +142,8 @@ label {
     border-radius: 4px;
 }
 .pagination {
-    width: 82%;
+    /*width: 82%;*/
+    width: 1030px;
     margin: 0 auto;
     display: flex;
     justify-content: end;
@@ -178,7 +183,7 @@ label {
     top: -3px;
     left: 0;
     right: 0;
-    bottom: 3px;
+    bottom: 1px;
     background-color: #ccc;
     transition: 0.3s;
     border-radius: 20px;
@@ -187,9 +192,9 @@ label {
 .slider::before {
     position: absolute;
     content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
+    height: 16px;
+    width: 16px;
+    left: 2px;
     bottom: 3px;
     background-color: white;
     transition: 0.3s;

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>BITZER - QR Code Generator</title>
+    <link rel="shortcut icon" th:href="@{bitzer_tab.ico}" type="image/x-icon"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{css/main.css(v=${#dates.createNow().getTime()})}" />
     <script th:src="@{js/commons.js}"></script>
@@ -28,9 +29,11 @@
     // allQRCodes (master list), and qrCodes (filtered list).
     let allQRCodes = [];
     let qrCodes = [];
+    let serverUrl = "";
 
     try {
         allQRCodes = [[${qrCodes}]];  // Load from backend
+        serverUrl = [[${serverUrl}]];
     } catch (e) {
         cLog("Model loading error ", e);
     }
@@ -561,6 +564,7 @@
     }
 
     function getCurrentUser() {
+        let appEl = document.getElementById('app');
         if (!DEV) {
             let thisUrl = "/rest/administration/users/current";
             var xhr = new XMLHttpRequest();
@@ -570,16 +574,22 @@
                     currentUser = JSON.parse(this.responseText);
                     console.log(currentUser);
                     lang = currentUser.language;
+                    appEl.style.display = 'block';
+
                     // if (currentUser.roles.PIMEDIA_ORGANISATION !== "administrator") {
                     //     document.getElementById("settings_img").style.display="none";
                     // }
                 } else {
                     console.log("get current user error", this.status);
+                    window.location.replace(serverUrl);
                 }
             }
             xhr.open("GET", thisUrl, false);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.send();
+        } else {
+            appEl.style.display = 'block';
+            currentUser = dummyUser;
         }
     }
 

@@ -2,7 +2,9 @@ const DEV = false;
 
 let lang = "en-US"; // "de-DE" "en-US"
 
-let currentUser = {
+let currentUser = null;
+
+let dummyUser = {
     "id": 2420,
     "login": "djordje.gavrilovic",
     "firstName": "Djordje",

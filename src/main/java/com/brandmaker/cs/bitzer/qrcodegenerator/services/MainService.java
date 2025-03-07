@@ -13,6 +13,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.xmlgraphics.java2d.GraphicContext;
 import org.apache.xmlgraphics.java2d.ps.EPSDocumentGraphics2D;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
@@ -221,16 +222,18 @@ public class MainService {
 
             int size = 300; // QR code size
 
-            Color bgColor = switch (payload.getQrColor().toLowerCase()) {
+            Color fgColor = switch (payload.getQrColor().toLowerCase()) {
                 case "green" -> Color.decode("#3aaa35");
                 case "white" -> Color.WHITE;
                 default -> Color.BLACK;
             };
 
-            Color fgColor = switch (payload.getQrColor().toLowerCase()) {
-                case "white" -> Color.BLACK;
-                default -> Color.WHITE;
-            };
+            Color bgColor = new Color(0, 0, 0, 0);  // ARGB = fully transparent
+
+//            Color fgColor = switch (payload.getQrColor().toLowerCase()) {
+//                case "white" -> Color.BLACK;
+//                default -> Color.WHITE;
+//            };
 
             // Generate QR Code
             String qrText = fetchQrTextFromCO(customObjectDTO);
@@ -245,7 +248,7 @@ public class MainService {
                 } else if ("eps".equalsIgnoreCase(payload.getQrFormat())) {
                     response.setContentType("application/postscript");
                     response.setHeader("Content-Disposition", "attachment; filename=qrcode.eps");
-                    generateEps(bitMatrix, out, bgColor, payload.getQrModel());
+                    generateEps(bitMatrix, out, fgColor, payload.getQrModel());
                 }
             }
 
@@ -263,7 +266,7 @@ public class MainService {
     private static BufferedImage toBufferedImage(BitMatrix bitMatrix, Color bgColor, Color fgColor) {
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 image.setRGB(x, y, bitMatrix.get(x, y) ? fgColor.getRGB() : bgColor.getRGB());
@@ -272,26 +275,33 @@ public class MainService {
         return image;
     }
 
-    private static void generateEps(BitMatrix bitMatrix, OutputStream out, Color bgColor, String model) throws IOException {
+
+    private static void generateEps(BitMatrix bitMatrix, OutputStream out, Color fgColor, String model) throws IOException {
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
 
         EPSDocumentGraphics2D g2d = new EPSDocumentGraphics2D(false);
-        g2d.setupDocument(out, width, height); // Initialize EPS document
+        g2d.setupDocument(out, width, height);
+
+        // Manually initialize the graphic context if it isn’t already set.
+        if (g2d.getGraphicContext() == null) {
+            g2d.setGraphicContext(new GraphicContext());
+        }
 
         try {
-            // Set background color
-            g2d.setBackground(bgColor);
-            g2d.clearRect(0, 0, width, height);
+            // --- Coordinate Transformation ---
+            // Flip the y-axis so that (0,0) becomes the top-left.
+            g2d.translate(0, height);
+            g2d.scale(1, -1);
 
-            // Set color model
-            if ("cmyk".equalsIgnoreCase(model)) {
-                g2d.setColor(new Color(0, 0, 0, 1)); // Simulating CMYK black
-            } else {
-                g2d.setColor(Color.BLACK); // Default RGB
-            }
+            // --- Fill the Background ---
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(0, 0, width, height);
 
-            // Draw QR code
+            // --- Set Foreground Color ---
+            g2d.setColor(fgColor);
+
+            // --- Draw the QR Code ---
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     if (bitMatrix.get(x, y)) {
@@ -300,11 +310,46 @@ public class MainService {
                 }
             }
 
-            g2d.finish(); // Properly close EPS
+            // Finalize the EPS document.
+            g2d.finish();
         } finally {
-            g2d.dispose(); // Manually close resources
+            g2d.dispose();
         }
     }
+
+//    private static void generateEps(BitMatrix bitMatrix, OutputStream out, Color bgColor, String model) throws IOException {
+//        int width = bitMatrix.getWidth();
+//        int height = bitMatrix.getHeight();
+//
+//        EPSDocumentGraphics2D g2d = new EPSDocumentGraphics2D(false);
+//        g2d.setupDocument(out, width, height); // Initialize EPS document
+//
+//        try {
+//            // Set background color
+//            g2d.setBackground(bgColor);
+//            g2d.clearRect(0, 0, width, height);
+//
+//            // Set color model
+//            if ("cmyk".equalsIgnoreCase(model)) {
+//                g2d.setColor(new Color(0, 0, 0, 1)); // Simulating CMYK black
+//            } else {
+//                g2d.setColor(Color.BLACK); // Default RGB
+//            }
+//
+//            // Draw QR code
+//            for (int x = 0; x < width; x++) {
+//                for (int y = 0; y < height; y++) {
+//                    if (bitMatrix.get(x, y)) {
+//                        g2d.fillRect(x, y, 1, 1);
+//                    }
+//                }
+//            }
+//
+//            g2d.finish(); // Properly close EPS
+//        } finally {
+//            g2d.dispose(); // Manually close resources
+//        }
+//    }
 
     private static String fetchQrTextFromCO(CustomObjectDTO customObjectDTO) {
         String qrText = "";

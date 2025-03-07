@@ -28,9 +28,11 @@ public class ViewController {
     public String getIndex(Model model) {
 
         String customStructureId = appProperties.getCustomStructureId();
+        String serverUrl = appProperties.getWebApiRoot();
         CustomStructureCustomObjectsDTO customObject = csCoRest.getCustomObjectsByCustomStructureId(Integer.parseInt(customStructureId));
 
         model.addAttribute("qrCodes", customObject.getData());
+        model.addAttribute("serverUrl", serverUrl);
         model.addAttribute("appVersion", appProperties.getAppVersion());
 
         log.info("appVersion: " + appProperties.getAppVersion());
@@ -38,7 +40,7 @@ public class ViewController {
         return "index";
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]+}")
     public String redirectToExternalUrl(@PathVariable int id) {
         // Retrieve the object by ID
         CustomObjectDTO customObjectDTO = csCoRest.getCustomObjectById(id);
