@@ -89,7 +89,7 @@ class QrCodeGenIT {
         String customStructureId = appProperties.getCustomStructureId();
 
         CustomObjectCreateDTO createDTO = new CustomObjectCreateDTO();
-        createDTO.setName("Test_Object_4");
+        createDTO.setName("Test_Object_X");
         createDTO.setLabel(Map.of("default", "Test Label"));
         createDTO.setState("EDIT_AND_ADD");
         createDTO.setCustomStructureId(Integer.valueOf(customStructureId));

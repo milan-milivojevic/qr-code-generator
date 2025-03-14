@@ -81,7 +81,8 @@ const translations = {
         33: "Poster",
         34: "Merchandise",
         35: "German",
-        36: "English"
+        36: "English",
+        37: "Color"
     },
     de: {
         1: "QR CODE GENERATOR",
@@ -119,6 +120,7 @@ const translations = {
         33: "Plakat",
         34: "Werbeartikel",
         35: "Deutsch",
-        36: "Englisch"
+        36: "Englisch",
+        37: "Farbe"
     }
 };

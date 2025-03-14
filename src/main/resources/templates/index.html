@@ -2,8 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>BITZER - QR Code Generator</title>
+    <title>BITZER - QR CODE GENERATOR</title>
     <link rel="shortcut icon" th:href="@{bitzer_tab.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{https://fonts.googleapis.com/css?family=Roboto:400,700}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{css/main.css(v=${#dates.createNow().getTime()})}" />
     <script th:src="@{js/commons.js}"></script>
@@ -11,10 +12,18 @@
 <body>
 
 <div id="app">
-    <h1 data-translate-key="1">QR CODE GENERATOR</h1>
+    <h1 data-translate-key="1" id="qr-headline"><b>QR CODE GENERATOR</b></h1>
     <div id="search-create-container">
-        <input type="text" id="search-input" data-translate-key="2" placeholder="Search"/>
-        <button id="create-button" data-translate-key="3" onclick="displayCreateModal()">Create New QR Code</button>
+        <div id="search-container">
+            <input type="text" id="search-input" data-translate-key="2" placeholder="Search..."/>
+            <button type="button" onclick="searchQRCodes()">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="none" stroke-miterlimit="10" stroke-width="32" d="M221.09 64a157.09 157.09 0 10157.09 157.09A157.1 157.1 0 00221.09 64z"></path>
+                    <path fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M338.29 338.29L448 448"></path>
+                </svg>
+            </button>
+        </div>
+        <button id="create-button" data-translate-key="3" onclick="displayCreateModal()">Create new QR code</button>
     </div>
     <div id="qr-container"></div>
     <div class="pagination">
@@ -50,7 +59,7 @@
         qrCodes = allQRCodes.slice();  // Make a copy
         getCurrentUser(); // sets language and privileges
         renderQRCodes();
-        doTranslate('app');
+        // doTranslate('app');
     } else {
         document.getElementById('app').innerHTML = `Error: QR Codes could not be loaded.`;
         cLog("ERROR: QR Codes not loaded.");
@@ -85,7 +94,7 @@
 
         currentPage = 1;
         renderQRCodes();
-        doTranslate('app');
+        // doTranslate('app');
     }
 
     function renderQRCodes() {
@@ -130,11 +139,11 @@
                     <div class="qr-lay-1-1">
                         <div class="qr-lay-1-1-1">
                             <div class="qr-lay-field">
-                                <b data-translate-key="4" >Campaign Name</b><br>
+                                <b data-translate-key="4" >Name of measure</b><br>
                                 ${campaignName}
                             </div>
                             <div class="qr-lay-field">
-                                <b data-translate-key="5">Campaign Medium</b><br>
+                                <b data-translate-key="5">Measure</b><br>
                                 ${campaignMedium}
                             </div>
                         </div>
@@ -144,7 +153,7 @@
                                 ${urlCode}
                             </div>
                             <div class="qr-lay-field">
-                                <b data-translate-key="8">Additional Information</b><br>
+                                <b data-translate-key="8">Additional information</b><br>
                                 ${additionalInfo}
                             </div>
                         </div>
@@ -171,7 +180,7 @@
                             <div class="qr-lay-2-1-1-2">
                                 <div class="qr-lay-2-1-1-2-1">
                                     <div class="qr-lay-field">
-                                        <b data-translate-key="10">Created</b><br>
+                                        <b data-translate-key="10">Date of creation</b><br>
                                         ${createDateOnly}
                                     </div>
                                 </div>
@@ -187,15 +196,30 @@
                             </div>
                         </div>
                         <div class="qr-lay-2-1-2 qr-lay-field">
-                            <b data-translate-key="12">Tracking URL</b><br>
+                            <b data-translate-key="12">Tracking URL (editable at a later date)</b><br>
                             <input type="text" placeholder="${trackingUrl}" readonly>
                         </div>
                     </div>
                     <div class="qr-lay-2-2">
-                        <i class="fas fa-pencil-alt icon-container"
-                           onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i><br>
-                        <i class="fas fa-trash icon-container" onclick="displayDeleteModal(${qrCodeId})"></i><br>
-                        <i class="fas fa-download icon-container" onclick="displayDownloadModal('${qrCodeId}','${campaignName}')"></i>
+<!--                        <i class="fas fa-pencil-alt icon-container" title="Edit"-->
+<!--                           onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i><br>-->
+                       <div class="icon-container" title="Edit" onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')">
+                            <svg class="MP--MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="white"></path>
+                            </svg>
+                        </div>
+<!--                        <i class="fas fa-trash icon-container" title="Delete" onclick="displayDeleteModal(${qrCodeId})"></i><br>-->
+                        <div class="icon-container" title="Delete" onclick="displayDeleteModal(${qrCodeId})">
+                            <svg class="MP--MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="white"></path>
+                            </svg>
+                        </div>
+<!--                        <i class="fas fa-download icon-container" title="Download" onclick="displayDownloadModal('${qrCodeId}','${campaignMedium}')"></i>-->
+                        <div class="icon-container" title="Download" onclick="displayDownloadModal('${qrCodeId}','${campaignMedium}')">
+                            <svg class="MP--MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="white"></path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             `;
@@ -250,7 +274,7 @@
         if (currentPage * itemsPerPage < qrCodes.length) {
             currentPage++;
             renderQRCodes();
-            doTranslate('app');
+            // doTranslate('app');
         }
     }
 
@@ -258,7 +282,7 @@
         if (currentPage > 1) {
             currentPage--;
             renderQRCodes();
-            doTranslate('app');
+            // doTranslate('app');
         }
     }
 
@@ -270,24 +294,29 @@
         modalDiv.innerHTML = `
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('ce-modal-container')">x</button>
-            <h2 style="padding-top: 20px" data-translate-key="3">Create new QR Code</h2>
+            <h2 style="padding-top: 20px" data-translate-key="3">Create new QR code</h2>
+            <label for="campaign-name-input" style="text-align: left; padding-left: 95px; margin-top: 30px;">Name of measure</label>
             <input type="text" data-translate-key="4" placeholder="Campaign Name" id="campaign-name-input"><br>
+            <label for="campaign-medium-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Measure</label>
             <input type="text" list="mediums-list" data-translate-key="5" placeholder="Campaign Medium" id="campaign-medium-input" autocomplete="off"><br>
             <datalist id="mediums-list">
-                <option value="Flyer" label="Flyer">
-                <option value="Brochure" label="Broschüre">
-                <option value="Postcard" label="Postkarte">
-                <option value="Advert" label="Anzeige">
-                <option value="Roll-up" label="Roll-up">
-                <option value="Poster" label="Plakat">
-                <option value="Merchandise" label="Werbeartikel">
+                <option value="Flyer">
+                <option value="Brochure">
+                <option value="Postcard">
+                <option value="Advert">
+                <option value="Roll-up">
+                <option value="Poster">
+                <option value="Merchandise">
             </datalist>
+            <label for="language-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Language</label>
             <input type="text" list="lang-list" data-translate-key="6" placeholder="Language" id="language-input" autocomplete="off"><br>
             <datalist id="lang-list">
-                <option value="German" label="Deutsch">
-                <option value="English" label="Englisch">
+                <option value="German">
+                <option value="English">
             </datalist>
+            <label for="tracking-url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Tracking URL (editable at a later date)</label>
             <input type="text" data-translate-key="12" placeholder="Tracking URL" id="tracking-url-input"><br>
+            <label for="additional-info-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Additional information</label>
             <input type="text" data-translate-key="8" placeholder="Additional Information" id="additional-info-input"><br>
             <button id="create-button" data-translate-key="16" onclick="doCreate()">Create</button>
         </div>
@@ -295,7 +324,7 @@
 
         appDiv.appendChild(modalDiv);
         document.body.style.overflow = "hidden"; // Disable scrolling
-        doTranslate("ce-modal-container");
+        // doTranslate("ce-modal-container");
     }
 
     function closeModal(modalId) {
@@ -313,6 +342,28 @@
         let lang = document.getElementById('language-input').value;
         let trackingUrl = document.getElementById('tracking-url-input').value;
         let addInfo = document.getElementById('additional-info-input').value;
+
+        // Validate required fields
+        if (campName.trim() === '') {
+            alert('Name of measure is required!');
+            document.getElementById('campaign-name-input').focus();
+            return; // Stop processing if validation fails.
+        }
+        if (campMedium.trim() === '') {
+            alert('Measure is required!');
+            document.getElementById('campaign-medium-input').focus();
+            return;
+        }
+        if (lang.trim() === '') {
+            alert('Language is required!');
+            document.getElementById('campaign-medium-input').focus();
+            return;
+        }
+        if (trackingUrl.trim() === '') {
+            alert('Tracking URL is required!');
+            document.getElementById('campaign-medium-input').focus();
+            return;
+        }
 
         let payload = {
             campaignName: campName,
@@ -347,7 +398,7 @@
         publishModal.innerHTML = `
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('publish-modal-container')">x</button>
-            <h2 style="padding-top: 20px" data-translate-key="26">Please confirm publish update.</h2>
+            <p style="padding-top: 30px" data-translate-key="26">Please confirm publish update.</p>
             <button id="create-button" data-translate-key="27" onclick="doPublishUpdate(${qrid}, ${toPublish})">Confirm</button>
         </div>
         `;
@@ -355,7 +406,7 @@
         appDiv.appendChild(publishModal);
         window.scrollTo(0, 0);
         document.body.style.overflow = "hidden"; // Disable scrolling
-        doTranslate("publish-modal-container");
+        // doTranslate("publish-modal-container");
     }
 
     function doPublishUpdate(qrid, toPublish) {
@@ -389,24 +440,29 @@
         modalDiv.innerHTML = `
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('edit-modal-container')">x</button>
-            <h2 style="padding-top: 20px" data-translate-key="17">Edit QR Code</h2>
+            <h2 style="padding-top: 20px" data-translate-key="17">Edit QR code</h2>
+            <label for="campaign-name-input" style="text-align: left; padding-left: 95px; margin-top: 30px;">Name of measure</label>
             <input type="text" placeholder="${campaignName}" id="campaign-name-input"><br>
+            <label for="campaign-medium-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Measure</label>
             <input type="text" list="mediums-list" placeholder="${campaignMedium}" id="campaign-medium-input" autocomplete="off"><br>
             <datalist id="mediums-list">
-                <option value="Flyer" label="Flyer">
-                <option value="Brochure" label="Broschüre">
-                <option value="Postcard" label="Postkarte">
-                <option value="Advert" label="Anzeige">
-                <option value="Roll-up" label="Roll-up">
-                <option value="Poster" label="Plakat">
-                <option value="Merchandise" label="Werbeartikel">
+                <option value="Flyer">
+                <option value="Brochure">
+                <option value="Postcard">
+                <option value="Advert">
+                <option value="Roll-up">
+                <option value="Poster">
+                <option value="Merchandise">
             </datalist>
+            <label for="language-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Language</label>
             <input type="text" list="lang-list" placeholder="${language}" id="language-input" autocomplete="off"><br>
             <datalist id="lang-list">
-                <option value="German" label="Deutsch">
-                <option value="English" label="Englisch">
+                <option value="German">
+                <option value="English">
             </datalist>
+            <label for="tracking-url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Tracking URL</label>
             <input type="text" placeholder="${trackingUrl}" id="tracking-url-input"><br>
+            <label for="additional-info-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Additional information</label>
             <input type="text" placeholder="${additionalInfo}" id="additional-info-input"><br>
             <button id="create-button" data-translate-key="18" onclick="doEdit(${qrCodeId})">Edit</button>
         </div>
@@ -417,7 +473,7 @@
         window.scrollTo(0, 0);
         document.body.style.overflow = "hidden"; // Disable scrolling
 
-        doTranslate("edit-modal-container");
+        // doTranslate("edit-modal-container");
     }
 
     function doEdit(qrCodeId) {
@@ -460,7 +516,7 @@
         publishModal.innerHTML = `
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('delete-modal-container')">x</button>
-            <h2 style="padding-top: 20px" data-translate-key="19">Please confirm delete.</h2>
+            <p style="padding-top: 30px" data-translate-key="19">Do you really want to delete the QR code?</p>
             <button id="create-button" data-translate-key="20" onclick="doDelete(${qrCodeId})">Confirm</button>
         </div>
         `;
@@ -470,7 +526,7 @@
         window.scrollTo(0, 0);
         document.body.style.overflow = "hidden"; // Disable scrolling
 
-        doTranslate("delete-modal-container");
+        // doTranslate("delete-modal-container");
     }
 
     function doDelete(qrCodeId) {
@@ -489,7 +545,7 @@
         xhr.send();
     }
 
-    function displayDownloadModal(qrCodeId, campaignName) {
+    function displayDownloadModal(qrCodeId, campaignMedium) {
         const appDiv = document.getElementById('app');
         let publishModal = document.createElement('div');
         publishModal.setAttribute("id", "download-modal-container");
@@ -497,26 +553,26 @@
         publishModal.innerHTML = `
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('download-modal-container')">x</button>
-            <h2 style="padding-top: 25px" data-translate-key="21">Download QR Code</h2>
-            <label data-translate-key="23">Format:</label>
+            <p style="padding-top: 25px; padding-bottom: 10px;" data-translate-key="21">Download QR code</p>
+            <label data-translate-key="23">File format:</label>
             <select id="format">
                 <option value="png">PNG</option>
                 <option value="eps">EPS</option>
             </select><br><br>
 
-            <label data-translate-key="24">Background Color:</label>
+            <label data-translate-key="37">QR code colour:</label>
             <select id="color">
-                <option value="black">Black</option>
+                <option value="black">BITZER Black</option>
+                <option value="green">BITZER Green</option>
                 <option value="white">White</option>
-                <option value="green">Green</option>
             </select><br><br>
 
-            <label data-translate-key="25">Color Model:</label>
+            <label data-translate-key="25">Colour mode:</label>
             <select id="model">
                 <option value="rgb">RGB</option>
                 <option value="cmyk">CMYK</option>
             </select><br><br>
-            <button id="create-button" data-translate-key="22" onclick="doDownload('${qrCodeId}', '${campaignName}')">Download</button>
+            <button id="create-button" style="margin-top: 30px" data-translate-key="22" onclick="doDownload('${qrCodeId}', '${campaignMedium}')">Download</button>
         </div>
         `;
 
@@ -525,10 +581,10 @@
         window.scrollTo(0, 0);
         document.body.style.overflow = "hidden"; // Disable scrolling
 
-        doTranslate("download-modal-container");
+        // doTranslate("download-modal-container");
     }
 
-    function doDownload(qrCodeId, campaignName) {
+    function doDownload(qrCodeId, campaignMedium) {
         let format = document.getElementById("format").value;
         let color = document.getElementById("color").value;
         let model = document.getElementById("model").value;
@@ -549,7 +605,7 @@
                 // Create a download link
                 let link = document.createElement("a");
                 link.href = window.URL.createObjectURL(blob);
-                link.download = `qr-code-${campaignName}.${format}`;
+                link.download = `QR_code_${qrCodeId}_${campaignMedium}.${format}`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -573,7 +629,7 @@
                     console.log("get current user success");
                     currentUser = JSON.parse(this.responseText);
                     console.log(currentUser);
-                    lang = currentUser.language;
+                    // lang = currentUser.language; // disabled by request
                     appEl.style.display = 'block';
 
                     // if (currentUser.roles.PIMEDIA_ORGANISATION !== "administrator") {

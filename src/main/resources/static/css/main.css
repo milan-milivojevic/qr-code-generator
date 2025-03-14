@@ -5,7 +5,9 @@
 body {
     margin: 0;
     background-color: #f9f9f9;
-    font-family: Tahoma, Arial, sans-serif;
+    /*font-family: Tahoma, Arial, sans-serif;*/
+    /*font-family: Tahoma, Geneva, sans-serif;*/
+    font-family: 'Roboto', Arial, sans-serif;
 }
 #app {
     display: none; /* until access rights are confirmed */
@@ -18,7 +20,7 @@ body {
         /*width: 82%;*/
         width: 1030px;
         margin: 0 auto;
-        padding-bottom: 25px;
+        padding-bottom: 35px;
         color: var(--b_green);
         font-size: 2.4em;
     }
@@ -35,11 +37,71 @@ body {
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
+    #search-container {
+        width: 43%;
+        display: flex;
+        align-items: center;
+        #search-input {
+            width: 55%;
+            height: 37px;
+            border-radius: 0;
+            padding: 0 0 0 10px;
+        }
+        /* Modern browsers */
+        #search-input::placeholder {
+            color: #888;
+            font-style: italic;
+            padding-left: 10px;
+        }
+
+        /* Older Safari/Chrome */
+        #search-input::-webkit-input-placeholder {
+            color: #888;
+            font-style: italic;
+            padding-left: 10px;
+        }
+
+        /* Older Firefox */
+        #search-input:-moz-placeholder {
+            color: #888;
+            font-style: italic;
+            opacity: 1; /* Overwrite the default partial opacity in Firefox */
+            padding-left: 10px;
+        }
+        #search-input::-moz-placeholder {
+            color: #888;
+            font-style: italic;
+            opacity: 1;
+            padding-left: 10px;
+        }
+
+        /* Older IE/Edge */
+        #search-input:-ms-input-placeholder {
+            color: #888;
+            font-style: italic;
+            padding-left: 10px;
+        }
+        #search-input::-ms-input-placeholder {
+            color: #888;
+            font-style: italic;
+            padding-left: 10px;
+        }
+        button {
+            background-color: #3aaa35;
+            border: 1px solid #3aaa35;
+            color: #fff;
+            cursor: pointer;
+            padding: 6px;
+            width: 40px;
+            svg {
+                color: #fff;
+                height: 22px;
+                width: 22px;
+            }
+        }
+    }
 }
-#search-input {
-    width: 39%;
-    height: 40px;
-}
+
 #create-button {
     background-color: var(--b_green);
     color: white;
@@ -59,7 +121,7 @@ body {
     padding: 25px 15px 15px 15px;
     margin: 40px auto;
     border-radius: 5px;
-    background-color: #f9f9f9;
+    background-color: #ededed;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
     .qr-lay-field {
         padding-bottom: 15px;
@@ -231,12 +293,12 @@ label {
             cursor: pointer;
         }
         input {
-            margin-top: 45px;
+            margin-top: 5px;
             width: 80%;
             height: 40px;
         }
         input:first-of-type {
-            margin-top: 30px;
+            margin-top: 5px;
         }
         #create-button {
             background-color: var(--b_green);
@@ -256,8 +318,11 @@ label {
 #download-modal-container {
     #ce-modal {
         width: 30%;
-        height: 355px;
+        height: 390px;
         border-radius: 5px;
+        select {
+            height: 30px;
+        }
     }
 }
 .icon-container {
@@ -273,5 +338,8 @@ label {
     margin-top: 15px;
     margin-left: 35px;
     cursor: pointer;
+    svg {
+        height: 30px;
+    }
 }
 
