@@ -11,7 +11,7 @@
 
     <groupId>com.brandmaker.cs.bitzer</groupId>
     <artifactId>qr-code-generator</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
     <name>QR Code Generator</name>
     <description>QR Code Generator</description>
 
