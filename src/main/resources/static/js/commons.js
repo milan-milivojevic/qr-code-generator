@@ -30,13 +30,13 @@ let dummyUser = {
 
 // Pagination variables
 let currentPage = 1;
-const itemsPerPage = 3;
+const itemsPerPage = 10;
 
 // Helper log function
 function cLog(msg, obj) {
     let message = "QR-GEN: " + msg;
     if (obj !== undefined) {
-        console.log(message,obj);
+        console.log(message, obj);
     } else {
         console.log(message);
     }
@@ -124,3 +124,28 @@ const translations = {
         37: "Farbe"
     }
 };
+
+// function getCurrentUser() {
+//     let thisUrl = "/rest/administration/users/current";
+//     var xhr = new XMLHttpRequest();
+//     xhr.onload = function () {
+//         if (this.status === 200) {
+//             console.log("get current user success");
+//             console.log(this.responseText);
+//             let currentUser = JSON.parse(this.responseText);
+//             const mpRole = currentUser.roles.PIMEDIA_DATABASE;
+//             if (mpRole === "administrator" ||
+//                 mpRole === "Power User"   ||
+//                 mpRole === "Casual User Plus") {
+//                 console.log(`Role ${mpRole} allowed.`)
+//             } else {
+//                 console.log(`Role ${mpRole} not allowed. Redirecting...`);
+//             }
+//         } else {
+//             console.log("get current user error", this.status);
+//         }
+//     }
+//     xhr.open("GET", thisUrl, false);
+//     xhr.setRequestHeader("Content-Type", "application/json");
+//     xhr.send();
+// }

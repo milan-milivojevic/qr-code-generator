@@ -29,14 +29,14 @@ import java.util.Map;
 @Slf4j
 public class MainService {
 
-    public static boolean createQrCode(CreatePayloadDTO payload, CsCoRest csCoRest, AppProperties appProperties) {
-        boolean result = true;
+    public static int createQrCode(CreatePayloadDTO payload, CsCoRest csCoRest, AppProperties appProperties) {
+        int result = 0;
 
         String customStructureId = appProperties.getCustomStructureId();
         String serverUrl = appProperties.getWebApiRoot();
 
         // Generate CO name based on campaign name and timestamp
-        String formattedCname = payload.getCampaignName().replace(" ", "_");
+        String formattedCname = payload.getCampaignName().replace(" ", "_").replace("-", "_");
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String finalCustomObjectName = formattedCname + "_" + timestamp;
 
@@ -76,13 +76,13 @@ public class MainService {
             try (Response response = csCoRest.updateCustomObject(customObject.getId(), createDTO)) {
                 if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                     log.info("Custom object updated: {}", customObject.getId());
+                    result = customObject.getId();
                 } else {
                     log.info("Custom object not updated: {}", customObject.getId());
                 }
             }
         } else {
             log.info("Custom object not created");
-            result = false;
         }
 
         return result;

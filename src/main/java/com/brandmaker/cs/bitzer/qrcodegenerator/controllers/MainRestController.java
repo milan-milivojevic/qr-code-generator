@@ -33,7 +33,9 @@ public class MainRestController {
         String message;
         HttpStatus status;
 
-        if (MainService.createQrCode(payload, csCoRestService, appProperties)) {
+        int createdId = MainService.createQrCode(payload, csCoRestService, appProperties);
+
+        if ( createdId != 0) {
             message = "Qr code created";
             status = HttpStatus.CREATED;
         } else {
@@ -41,7 +43,7 @@ public class MainRestController {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
 
-        return new ResponseEntity<>(message, status);
+        return new ResponseEntity<>(String.valueOf(createdId), status);
     }
 
     @PostMapping("/publish-update")
