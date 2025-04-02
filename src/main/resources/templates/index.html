@@ -27,9 +27,21 @@
     </div>
     <div id="qr-container"></div>
     <div class="pagination">
-        <button id="prevBtn" data-translate-key="13" onclick="prevPage()" disabled>Previous</button>
+        <!-- "Previous" button -->
+        <button id="prevBtn" data-translate-key="13" onclick="prevPage()" disabled>
+            <<
+        </button>
+
+        <!-- New container for the numeric page links -->
+        <div id="pageNumbers"></div>
+
+        <!-- Existing "Page X of Y" text -->
         <span id="pageInfo"></span>
-        <button id="nextBtn" data-translate-key="15" onclick="nextPage()">Next</button>
+
+        <!-- "Next" button -->
+        <button id="nextBtn" data-translate-key="15" onclick="nextPage()">
+            >>
+        </button>
     </div>
 </div>
 
@@ -231,23 +243,51 @@
     }
 
     function updatePaginationButtons() {
+        const totalPages = Math.ceil(qrCodes.length / itemsPerPage);
+
+        // Update button states
         document.getElementById("prevBtn").disabled = (currentPage === 1);
-        document.getElementById("nextBtn").disabled = (currentPage * itemsPerPage >= qrCodes.length);
+        document.getElementById("nextBtn").disabled = (currentPage >= totalPages);
 
-        document.getElementById("pageInfo").innerHTML = `
-            <span data-translate-key="28">Page</span> ${currentPage}
-            <span data-translate-key="29">of</span> ${Math.ceil(qrCodes.length / itemsPerPage)}`;
-
+        // Optional: toggle any styling for disabled states
         if (currentPage === 1) {
             document.getElementById("prevBtn").classList.add('dis-button');
         } else {
             document.getElementById("prevBtn").classList.remove('dis-button');
         }
-
-        if (currentPage * itemsPerPage >= qrCodes.length) {
+        if (currentPage >= totalPages) {
             document.getElementById("nextBtn").classList.add('dis-button');
         } else {
             document.getElementById("nextBtn").classList.remove('dis-button');
+        }
+
+        // Update "Page X of Y"
+    //     document.getElementById("pageInfo").innerHTML = `
+    //     <span data-translate-key="28">Page</span> ${currentPage}
+    //     <span data-translate-key="29">of</span> ${totalPages}
+    // `;
+
+        // Clear and re-populate the numeric links
+        const pageNumbersDiv = document.getElementById("pageNumbers");
+        pageNumbersDiv.innerHTML = "";
+
+        for (let page = 1; page <= totalPages; page++) {
+            const pageLink = document.createElement("span");
+            pageLink.textContent = page;
+            pageLink.classList.add("page-link");  // For custom styling
+
+            // Highlight current page
+            if (page === currentPage) {
+                pageLink.classList.add("active-page");
+            }
+
+            // On click, set `currentPage` and re-render
+            pageLink.addEventListener("click", () => {
+                currentPage = page;
+                renderQRCodes();
+            });
+
+            pageNumbersDiv.appendChild(pageLink);
         }
     }
 

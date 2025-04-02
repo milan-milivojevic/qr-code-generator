@@ -210,20 +210,39 @@ label {
     display: flex;
     justify-content: end;
 }
-#pageInfo {
-    padding: 5px 10px;
-}
 #nextBtn, #prevBtn {
-    background-color: var(--b_green);
-    color: white;
-    border: none;
-    border-radius: 3px;
+    border: 1px solid #e6e3e3;
+    background-color: #fff;
+    color: var(--b_green);
+    /*border-radius: 0 5px 5px 0;*/
     padding: 5px 10px;
     cursor: pointer;
 }
+/* Style each page number */
+.page-link {
+    border: 1px solid #e6e3e3;
+    background-color: #fff;
+    color: var(--b_green);
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    min-width: 30px;
+    height: 25px;
+    display: inline-block;
+    padding: 5px 6px 0;
+}
+
+/* Highlight the active/current page */
+.active-page {
+    font-weight: bold;
+    background-color: var(--b_green);
+    color: white;
+    border: 1px solid var(--b_green) !important;
+}
 .dis-button {
-    background-color: var(--b-gray) !important;
+    background-color: #e6e3e3 !important;
     cursor: default !important;
+    color: white !important;
 }
 /* Toggle Switch Container */
 .switch {
