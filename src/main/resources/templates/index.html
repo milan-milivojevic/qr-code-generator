@@ -225,25 +225,6 @@
             `;
 
             container.appendChild(qrDiv);
-
-            // for list view
-            // const qrDiv2 = document.createElement("div");
-            // qrDiv2.classList.add("qr-code-container");
-            // qrDiv2.dataset.qrid = qrCodeId;
-            // qrDiv2.innerHTML = `
-            // <div class="list-qrcode-item">
-            //     <span>${urlCode}</span>
-            //     <span>${campaignSubject}</span>
-            //     <span>${campaignName}</span>
-            //     <span>${campaignMedium}</span>
-            //     <span>${createDate}</span>
-            //     <span><i class="fas fa-pencil-alt icon-container"
-            //                onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i></span>
-            //     <span><i class="fas fa-trash icon-container" onclick="displayDeleteModal(${qrCodeId})"></i></span>
-            //     <span><i class="fas fa-download icon-container" onclick="displayDownloadModal('${qrCodeId}','${campaignName}')"></i></span>
-            // </div>
-            // `;
-            // container.appendChild(qrDiv2);
         });
 
         updatePaginationButtons();

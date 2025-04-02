@@ -89,7 +89,11 @@
             <artifactId>batik-transcoder</artifactId>
             <version>1.16</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.sf.epsgraphics</groupId>
+            <artifactId>epsgraphics</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 
     <build>

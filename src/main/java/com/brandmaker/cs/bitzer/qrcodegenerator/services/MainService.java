@@ -25,6 +25,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import net.sf.epsgraphics.ColorMode;
+import net.sf.epsgraphics.EpsGraphics;
 
 @Slf4j
 public class MainService {
@@ -222,11 +225,22 @@ public class MainService {
 
             int size = 300; // QR code size
 
-            Color fgColor = switch (payload.getQrColor().toLowerCase()) {
-                case "green" -> Color.decode("#3aaa35");
-                case "white" -> Color.WHITE;
-                default -> Color.BLACK;
-            };
+            Color fgColor;
+            String fileModel = payload.getQrModel();
+            if (fileModel.equals("rgb")) {
+                fgColor = switch (payload.getQrColor().toLowerCase()) {
+                    case "green" -> Color.decode("#3aaa35");
+                    case "white" -> Color.WHITE;
+                    default -> Color.BLACK;
+                };
+            } else {
+                fgColor = switch (payload.getQrColor().toLowerCase()) {
+                    case "green" -> new Color(58, 170, 53);
+                    case "white" -> Color.WHITE;
+                    default -> Color.BLACK;
+                };
+            }
+
 
             Color bgColor = new Color(0, 0, 0, 0);  // ARGB = fully transparent
 
@@ -248,7 +262,7 @@ public class MainService {
                 } else if ("eps".equalsIgnoreCase(payload.getQrFormat())) {
                     response.setContentType("application/postscript");
                     response.setHeader("Content-Disposition", "attachment; filename=qrcode.eps");
-                    generateEps(bitMatrix, out, fgColor, payload.getQrModel());
+                    generateEps(bitMatrix, out, fgColor, fileModel);
                 }
             }
 
@@ -275,8 +289,79 @@ public class MainService {
         return image;
     }
 
+    private static void generateEps(
+            BitMatrix bitMatrix,
+            OutputStream out,
+            Color fgColor,
+            String colorModel // "rgb" or "cmyk"
+    ) throws IOException {
+        System.out.println("Generating eps for " + bitMatrix.getWidth() + " x " + bitMatrix.getHeight());
+        int width = bitMatrix.getWidth();
+        int height = bitMatrix.getHeight();
 
-    private static void generateEps(BitMatrix bitMatrix, OutputStream out, Color fgColor, String model) throws IOException {
+        // Pick either CMYK or RGB
+        ColorMode epsColorMode;
+        if ("cmyk".equalsIgnoreCase(colorModel)) {
+            epsColorMode = ColorMode.COLOR_CMYK;
+        } else {
+            epsColorMode = ColorMode.COLOR_RGB;
+        }
+
+        // Create EpsGraphics with the selected ColorMode
+        EpsGraphics g2d = new EpsGraphics(
+                "QRCode",   // EPS title
+                out,        // OutputStream
+                0, 0,       // lower-left corner
+                width,      // bounding box width
+                height,     // bounding box height
+                epsColorMode
+        );
+
+        try {
+            // If you want top-left (0,0):
+            g2d.translate(0, height);
+            g2d.scale(1, -1);
+
+            // Background = white
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(0, 0, width, height);
+
+            // Foreground
+            if (epsColorMode == ColorMode.COLOR_CMYK) {
+                System.out.println("cmyk");
+                if (fgColor == Color.BLACK || fgColor == Color.WHITE) {
+                    g2d.setColor(fgColor);
+                } else {
+                    // Hard-coded brand CMYK, e.g. 75/0/100/0
+                    float c = 0.75f, m = 0f, y = 1.0f, k = 0f;
+                    // Convert to approximate sRGB (since Java Color is inherently RGB)
+                    float R = (1 - c) * (1 - k);
+                    float G = (1 - m) * (1 - k);
+                    float B = (1 - y) * (1 - k);
+                    g2d.setColor(new Color(R, G, B));
+                    System.out.println("Color is " + R + " " + G + " " + B);
+                }
+            } else {
+                System.out.println("rgb");
+                // Just use a hex color for "rgb"
+                g2d.setColor(fgColor);
+            }
+
+            // Draw the QR code
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    if (bitMatrix.get(x, y)) {
+                        g2d.fillRect(x, y, 1, 1);
+                    }
+                }
+            }
+        } finally {
+            g2d.flush();
+            g2d.close(); // finalizes the EPS
+        }
+    }
+
+    private static void generateEps2(BitMatrix bitMatrix, OutputStream out, Color fgColor, String model) throws IOException {
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
 
