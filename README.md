@@ -20,7 +20,3 @@ https://observability.adm.brandmaker.net/explore?orgId=1&left=%7B%22datasource%2
 - rename logback-spring.xml
 
 ---
-
-TODO:
-
-1. User permission

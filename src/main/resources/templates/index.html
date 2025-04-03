@@ -27,18 +27,13 @@
     </div>
     <div id="qr-container"></div>
     <div class="pagination">
-        <!-- "Previous" button -->
         <button id="prevBtn" data-translate-key="13" onclick="prevPage()" disabled>
             <<
         </button>
-
-        <!-- New container for the numeric page links -->
+        <!-- container for the numeric page links -->
         <div id="pageNumbers"></div>
-
-        <!-- Existing "Page X of Y" text -->
+        <!-- Existing "Page X of Y" text (deprecated) -->
         <span id="pageInfo"></span>
-
-        <!-- "Next" button -->
         <button id="nextBtn" data-translate-key="15" onclick="nextPage()">
             >>
         </button>
@@ -47,10 +42,11 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
+    let serverUrl = "";
+
     // allQRCodes (master list), and qrCodes (filtered list).
     let allQRCodes = [];
     let qrCodes = [];
-    let serverUrl = "";
 
     try {
         allQRCodes = [[${qrCodes}]];  // Load from backend
