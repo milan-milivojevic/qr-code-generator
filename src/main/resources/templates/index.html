@@ -342,6 +342,34 @@
         appDiv.appendChild(modalDiv);
         document.body.style.overflow = "hidden"; // Disable scrolling
         // doTranslate("ce-modal-container");
+
+        // HACK THE DROPDOWNS BEHAVIOUR
+        // Save the current value. Clear it so datalist shows full list.
+        // If the user didn't choose something else, restore the old value if needed.
+
+        const input1 = document.getElementById('campaign-medium-input');
+        let oldValue1 = '';
+        input1.addEventListener('focus', () => {
+            oldValue1 = input1.value;
+            input1.value = '';
+        });
+        input1.addEventListener('blur', () => {
+            if (!input1.value) {
+                input1.value = oldValue1;
+            }
+        });
+
+        const input2 = document.getElementById('language-input');
+        let oldValue2 = '';
+        input2.addEventListener('focus', () => {
+            oldValue2 = input2.value;
+            input2.value = '';
+        });
+        input2.addEventListener('blur', () => {
+            if (!input2.value) {
+                input2.value = oldValue2;
+            }
+        });
     }
 
     function closeModal(modalId) {
