@@ -610,13 +610,13 @@
 
             <label data-translate-key="37">QR code colour:</label>
             <select id="color">
-                <option value="black">BITZER Black</option>
                 <option value="green">BITZER Green</option>
+                <option value="black">BITZER Black</option>
                 <option value="white">White</option>
             </select><br><br>
 
             <label data-translate-key="25">Colour mode:</label>
-            <select id="model">
+            <select id="model" onchange="checkColor()">
                 <option value="rgb">Web (RGB)</option>
                 <option value="cmyk">Print (CMYK)</option>
             </select><br><br>
@@ -626,6 +626,7 @@
 
         appDiv.appendChild(publishModal);
         checkModel();
+        checkColor();
 
         window.scrollTo(0, 0);
         document.body.style.overflow = "hidden"; // Disable scrolling
@@ -636,10 +637,13 @@
     function checkModel() {
         const format = document.getElementById('format').value;
         const modelSelect = document.getElementById('model');
+        const colorSelect = document.getElementById('color');
 
         // Get references to the two model options
         const rgbOption = modelSelect.querySelector('option[value="rgb"]');
         const cmykOption = modelSelect.querySelector('option[value="cmyk"]');
+        const blackColor = colorSelect.querySelector('option[value="black"]');
+        const whiteColor = colorSelect.querySelector('option[value="white"]');
 
         if (format === 'png') {
             // Hide or disable CMYK option
@@ -649,6 +653,31 @@
         } else {
             // If EPS, show both
             cmykOption.style.display = 'block';
+        }
+        checkColor();
+    }
+
+    function checkColor() {
+        const format = document.getElementById('format').value;
+        const model = document.getElementById('model').value;
+        const colorSelect = document.getElementById('color');
+
+        const blackColor = colorSelect.querySelector('option[value="black"]');
+        const whiteColor = colorSelect.querySelector('option[value="white"]');
+        const greenColor = colorSelect.querySelector('option[value="green"]');
+
+        if (format === 'eps') {
+            if (model === "rgb") {
+                colorSelect.value = 'green';
+                blackColor.style.display = 'none';
+                whiteColor.style.display = 'none';
+            } else {
+                blackColor.style.display = 'block';
+                whiteColor.style.display = 'block';
+            }
+        } else {
+            blackColor.style.display = 'block';
+            whiteColor.style.display = 'block';
         }
     }
 
@@ -708,7 +737,8 @@
                     const mpRole = currentUser.roles.PIMEDIA_DATABASE;
                     if (mpRole === "administrator" ||
                         mpRole === "Power User"   ||
-                        mpRole === "Casual User Plus") {
+                        mpRole === "Casual User Plus QR code" ||
+                        mpRole === "Normal User plus QR code" ) {
                         cLog(`Role ${mpRole} allowed.`)
                     } else {
                         cLog(`Role ${mpRole} not allowed. Redirecting...`);

@@ -63,14 +63,20 @@ public class MainService {
 
         if (customObject != null) {
             log.info("Custom object created: {}", customObject.getId());
-            // We need to update created Object, so we could use its id as url code
+            // We need to update created Object, so we could use its id as url code and set GA4
+            String qrId = customObject.getId().toString();
+
+            // Sset tracking url GA4 params
+            String trackingUrl = payload.getTrackingUrl();
+            trackingUrl = trackingUrl + "?utm_source=" + qrId + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
+
             createDTO.setAttributeValues(List.of(
-                    new CustomObjectAttributeValueDTO(1, customObject.getId().toString(), "url_code", "TEXT"),
+                    new CustomObjectAttributeValueDTO(1, qrId, "url_code", "TEXT"),
                     new CustomObjectAttributeValueDTO(2, payload.getCampaignName(), "campaign_name", "TEXT"),
                     new CustomObjectAttributeValueDTO(3, payload.getCampaignMedium(), "campaign_medium", "TEXT"),
                     new CustomObjectAttributeValueDTO(4, payload.getLanguage(), "language", "TEXT"),
                     new CustomObjectAttributeValueDTO(5, serverUrl + "/qr-codes/" + customObject.getId(), "url_encoded", "TEXT"),
-                    new CustomObjectAttributeValueDTO(6, payload.getTrackingUrl(), "tracking_url", "TEXT"),
+                    new CustomObjectAttributeValueDTO(6, trackingUrl, "tracking_url", "TEXT"),
                     new CustomObjectAttributeValueDTO(7, payload.getAdditionalInfo(), "additional_information", "TEXT"),
                     new CustomObjectAttributeValueDTO(8, "new", "campaign_subject", "TEXT"),
                     new CustomObjectAttributeValueDTO(9, "false", "published", "TEXT")

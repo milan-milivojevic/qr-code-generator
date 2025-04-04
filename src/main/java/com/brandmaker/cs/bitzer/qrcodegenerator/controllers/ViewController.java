@@ -69,14 +69,14 @@ public class ViewController {
             trackingUrl = "https://" + trackingUrl;
         }
 
-        // Add GA4 tracking params
-        String utmMedium = customObjectDTO.getAttributeValue("campaign_medium").orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medium URL param not found")
-        );
-        String utmCampaign = customObjectDTO.getAttributeValue("campaign_name").orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Campaign URL param not found")
-        );
-        trackingUrl = trackingUrl + "?utm_source=" + id + "&utm_medium=" + utmMedium + "&utm_campaign=" + utmCampaign;
+//        // Add GA4 tracking params
+//        String utmMedium = customObjectDTO.getAttributeValue("campaign_medium").orElseThrow(
+//                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medium URL param not found")
+//        );
+//        String utmCampaign = customObjectDTO.getAttributeValue("campaign_name").orElseThrow(
+//                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Campaign URL param not found")
+//        );
+//        trackingUrl = trackingUrl + "?utm_source=" + id + "&utm_medium=" + utmMedium + "&utm_campaign=" + utmCampaign;
 
         // Return "redirect:{url}" so Spring will issue a 302 redirect
         return "redirect:" + trackingUrl;
