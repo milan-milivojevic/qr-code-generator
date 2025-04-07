@@ -182,8 +182,25 @@ public class MainService {
                         }
                     }
                     case "tracking_url" -> {
-                        if (payload.getTrackingUrl() != null && !payload.getTrackingUrl().isEmpty()) {
-                            attr.setValue(payload.getTrackingUrl());
+                        String originalTrackingUrl = payload.getTrackingUrl();
+                        String updatedTrackingUrl = "";
+                        if (originalTrackingUrl != null && !originalTrackingUrl.isEmpty()) {
+                            // Remove old GA4 if they exist
+                            if (originalTrackingUrl.contains("utm_source=") &&
+                                originalTrackingUrl.contains("utm_medium=") &&
+                                originalTrackingUrl.contains("utm_campaign=")) {
+
+                                int idx = originalTrackingUrl.indexOf('?');
+                                if (idx != -1) {
+                                    originalTrackingUrl =  originalTrackingUrl.substring(0, idx);
+                                }
+                            }
+
+                            // create new GA4
+                            updatedTrackingUrl = originalTrackingUrl + "?utm_source=" + id + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
+                            System.out.println("updated tracking url 1: " + updatedTrackingUrl);
+
+                            attr.setValue(updatedTrackingUrl);
                         }
                     }
                     case "additional_information" -> {

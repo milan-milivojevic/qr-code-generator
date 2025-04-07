@@ -205,7 +205,7 @@
                         </div>
                         <div class="qr-lay-2-1-2 qr-lay-field">
                             <b data-translate-key="12">Tracking URL (editable at a later date)</b><br>
-                            <input type="text" placeholder="${trackingUrl}" readonly>
+                            <input type="text" placeholder="${trackingUrl}" value="${trackingUrl}"readonly style="color: #777;">
                         </div>
                     </div>
                     <div class="qr-lay-2-2">
@@ -490,9 +490,9 @@
             <button id="close-modal-button" onclick="closeModal('edit-modal-container')">x</button>
             <h2 style="padding-top: 20px" data-translate-key="17">Edit QR code</h2>
             <label for="campaign-name-input" style="text-align: left; padding-left: 95px; margin-top: 30px;">Name of measure</label>
-            <input type="text" placeholder="${campaignName}" id="campaign-name-input"><br>
+            <input type="text" placeholder="${campaignName}" value="${campaignName}" id="campaign-name-input"><br>
             <label for="campaign-medium-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Measure</label>
-            <input type="text" list="mediums-list" placeholder="${campaignMedium}" id="campaign-medium-input" autocomplete="off" disabled><br>
+            <input type="text" list="mediums-list" placeholder="${campaignMedium}" value="${campaignMedium}" id="campaign-medium-input" autocomplete="off" disabled><br>
             <datalist id="mediums-list">
                 <option value="Flyer">
                 <option value="Brochure">
@@ -503,15 +503,15 @@
                 <option value="Merchandise">
             </datalist>
             <label for="language-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Language</label>
-            <input type="text" list="lang-list" placeholder="${language}" id="language-input" autocomplete="off" disabled><br>
+            <input type="text" list="lang-list" placeholder="${language}" value="${language}" id="language-input" autocomplete="off" disabled><br>
             <datalist id="lang-list">
                 <option value="German">
                 <option value="English">
             </datalist>
             <label for="tracking-url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Tracking URL</label>
-            <input type="text" placeholder="${trackingUrl}" id="tracking-url-input"><br>
+            <input type="text" placeholder="${trackingUrl}" value="${trackingUrl}" id="tracking-url-input"><br>
             <label for="additional-info-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Additional information</label>
-            <input type="text" placeholder="${additionalInfo}" id="additional-info-input"><br>
+            <input type="text" placeholder="${additionalInfo}" value="${additionalInfo}" id="additional-info-input"><br>
             <button id="create-button" data-translate-key="18" onclick="doEdit(${qrCodeId})">Edit</button>
         </div>
         `;
