@@ -345,9 +345,14 @@ public class MainService {
             g2d.translate(0, height);
             g2d.scale(1, -1);
 
-            // Background = white
-            g2d.setColor(Color.WHITE);
-            g2d.fillRect(0, 0, width, height);
+            // Set background if not cmyk and white
+            if (epsColorMode == ColorMode.COLOR_CMYK && fgColor == Color.WHITE) {
+                System.out.println("CMYK WHITE");
+            } else {
+                System.out.println("set background color");
+                g2d.setColor(Color.WHITE);
+                g2d.fillRect(0, 0, width, height);
+            }
 
             // Foreground
             if (epsColorMode == ColorMode.COLOR_CMYK) {

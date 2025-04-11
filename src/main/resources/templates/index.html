@@ -424,7 +424,7 @@
                 console.log(this.response)
                 console.log(this.responseText)
                 cLog("save qr code success");
-                doPublishUpdate(this.responseText, 'true');
+                // doPublishUpdate(this.responseText, 'true');
                 closeModal('ce-modal-container');
                 history.go(0);
             } else {
@@ -602,10 +602,17 @@
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('download-modal-container')">x</button>
             <p style="padding-top: 25px; padding-bottom: 10px;" data-translate-key="21">Download QR code</p>
+
             <label data-translate-key="23">File format:</label>
             <select id="format" onchange="checkModel()">
                 <option value="png">PNG</option>
                 <option value="eps">EPS</option>
+            </select><br><br>
+
+            <label data-translate-key="25">Colour mode:</label>
+            <select id="model" onchange="checkColor()">
+                <option value="rgb">Web (RGB)</option>
+                <option value="cmyk">Print (CMYK)</option>
             </select><br><br>
 
             <label data-translate-key="37">QR code colour:</label>
@@ -615,11 +622,6 @@
                 <option value="white">White</option>
             </select><br><br>
 
-            <label data-translate-key="25">Colour mode:</label>
-            <select id="model" onchange="checkColor()">
-                <option value="rgb">Web (RGB)</option>
-                <option value="cmyk">Print (CMYK)</option>
-            </select><br><br>
             <button id="create-button" style="margin-top: 30px" data-translate-key="22" onclick="doDownload('${qrCodeId}', '${campaignMedium}','${campaignName}','${language}')">Download</button>
         </div>
         `;
@@ -704,7 +706,7 @@
                 link.href = window.URL.createObjectURL(blob);
                 // link.download = `QR_code_${qrCodeId}_${campaignMedium}.${format}`;
                 let lan = language === 'English' ? 'en' : 'de';
-                link.download = `QR_${qrCodeId}_${campaignName}_${campaignMedium}_${lan}_${model}.${format}`;
+                link.download = `QR_${qrCodeId}_${campaignName}_${campaignMedium}_${lan}_${model}_${color}.${format}`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
