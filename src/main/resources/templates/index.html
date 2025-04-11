@@ -706,7 +706,7 @@
                 link.href = window.URL.createObjectURL(blob);
                 // link.download = `QR_code_${qrCodeId}_${campaignMedium}.${format}`;
                 let lan = language === 'English' ? 'en' : 'de';
-                link.download = `QR_${qrCodeId}_${campaignName}_${campaignMedium}_${lan}_${model}_${color}.${format}`;
+                link.download = `QR-Code_${qrCodeId}_${campaignName}_${campaignMedium}_${lan}_${model}_${color}.${format}`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
