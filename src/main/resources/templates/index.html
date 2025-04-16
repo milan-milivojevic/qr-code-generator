@@ -130,6 +130,7 @@
             const trackingUrl = qrCode.attributeValues.find(attr => attr.attributeName === "tracking_url")?.value || "Not Found";
             const language = qrCode.attributeValues.find(attr => attr.attributeName === "language")?.value || "Not Found";
             const additionalInfo = qrCode.attributeValues.find(attr => attr.attributeName === "additional_information")?.value || "Not Found";
+            const escapedAddInfo = additionalInfo.replace(/"/g, '\\"').replace(/'/g, "\\'");
             const publishedValue = qrCode.attributeValues.find(attr => attr.attributeName === "published")?.value || "Not Found";
 
             let published = "";
@@ -209,9 +210,14 @@
                         </div>
                     </div>
                     <div class="qr-lay-2-2">
-<!--                        <i class="fas fa-pencil-alt icon-container" title="Edit"-->
-<!--                           onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')"></i><br>-->
-                       <div class="icon-container" title="Edit" onclick="displayEditModal('${qrCodeId}', '${campaignName}', '${campaignMedium}', '${language}', '${trackingUrl}', '${additionalInfo}')">
+                       <div class="icon-container" title="Edit"
+                         data-qrcodeid='${qrCodeId}'
+                         data-campaignname='${campaignName}'
+                         data-campaignmedium='${campaignMedium}'
+                         data-language='${language}'
+                         data-trackingurl='${trackingUrl}'
+                         data-additionalinfo='${additionalInfo}'
+                         onclick="displayEditModal(this)">
                             <svg class="MP--MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="white"></path>
                             </svg>
@@ -480,7 +486,14 @@
         xhr.send(JSON.stringify(payload));
     }
 
-    function displayEditModal(qrCodeId, campaignName, campaignMedium, language, trackingUrl, additionalInfo) {
+    function displayEditModal(data) {
+        const qrCodeId = data.dataset.qrcodeid;
+        const campaignName = data.dataset.campaignname;
+        const campaignMedium = data.dataset.campaignmedium;
+        const language = data.dataset.language;
+        const trackingUrl = data.dataset.trackingurl;
+        const additionalInfo = data.dataset.additionalinfo;
+
         const appDiv = document.getElementById('app');
         const modalDiv = document.createElement("div");
         modalDiv.setAttribute("id", "edit-modal-container");
@@ -511,7 +524,7 @@
             <label for="tracking-url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Tracking URL</label>
             <input type="text" placeholder="${trackingUrl}" value="${trackingUrl}" id="tracking-url-input"><br>
             <label for="additional-info-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Additional information</label>
-            <input type="text" placeholder="${additionalInfo}" value="${additionalInfo}" id="additional-info-input"><br>
+            <input type="text" placeholder='${additionalInfo}' value='${additionalInfo}' id="additional-info-input"><br>
             <button id="create-button" data-translate-key="18" onclick="doEdit(${qrCodeId})">Edit</button>
         </div>
         `;
