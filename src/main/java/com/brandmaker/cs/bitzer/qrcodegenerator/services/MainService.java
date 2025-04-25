@@ -69,7 +69,7 @@ public class MainService {
             // Sset tracking url GA4 params
             String trackingUrl = payload.getTrackingUrl();
             String params = "?utm_source=qr-" + qrId + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
-            trackingUrl = trackingUrl + "?utm_source=qr-" + params.toLowerCase();
+            trackingUrl = trackingUrl + params.toLowerCase();
 
             createDTO.setAttributeValues(List.of(
                     new CustomObjectAttributeValueDTO(1, qrId, "url_code", "TEXT"),
@@ -198,10 +198,11 @@ public class MainService {
                             }
 
                             // create new GA4
-                            updatedTrackingUrl = originalTrackingUrl + "?utm_source=qr-" + id + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
-                            System.out.println("updated tracking url 1: " + updatedTrackingUrl.toLowerCase());
+                            String params = "?utm_source=qr-" + id + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
+                            updatedTrackingUrl = originalTrackingUrl + params.toLowerCase();
+                            System.out.println("updated tracking url 1: " + updatedTrackingUrl);
 
-                            attr.setValue(updatedTrackingUrl.toLowerCase());
+                            attr.setValue(updatedTrackingUrl);
                         }
                     }
                     case "additional_information" -> {
