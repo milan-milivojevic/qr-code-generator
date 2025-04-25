@@ -68,7 +68,8 @@ public class MainService {
 
             // Sset tracking url GA4 params
             String trackingUrl = payload.getTrackingUrl();
-            trackingUrl = trackingUrl + "?utm_source=qr-" + qrId + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
+            String params = "?utm_source=qr-" + qrId + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
+            trackingUrl = trackingUrl + "?utm_source=qr-" + params.toLowerCase();
 
             createDTO.setAttributeValues(List.of(
                     new CustomObjectAttributeValueDTO(1, qrId, "url_code", "TEXT"),
@@ -76,7 +77,7 @@ public class MainService {
                     new CustomObjectAttributeValueDTO(3, payload.getCampaignMedium(), "campaign_medium", "TEXT"),
                     new CustomObjectAttributeValueDTO(4, payload.getLanguage(), "language", "TEXT"),
                     new CustomObjectAttributeValueDTO(5, serverUrl + "/qr-codes/" + customObject.getId(), "url_encoded", "TEXT"),
-                    new CustomObjectAttributeValueDTO(6, trackingUrl.toLowerCase(), "tracking_url", "TEXT"),
+                    new CustomObjectAttributeValueDTO(6, trackingUrl, "tracking_url", "TEXT"),
                     new CustomObjectAttributeValueDTO(7, payload.getAdditionalInfo(), "additional_information", "TEXT"),
                     new CustomObjectAttributeValueDTO(8, "new", "campaign_subject", "TEXT"),
                     new CustomObjectAttributeValueDTO(9, "false", "published", "TEXT")
