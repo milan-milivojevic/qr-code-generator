@@ -42,6 +42,7 @@ public class MainService {
         String formattedCname = payload.getCampaignName().replace(" ", "_").replace("-", "_");
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String finalCustomObjectName = formattedCname + "_" + timestamp;
+        finalCustomObjectName = replaceUmlauts(finalCustomObjectName);
 
         CustomObjectCreateDTO createDTO = new CustomObjectCreateDTO();
         createDTO.setName(finalCustomObjectName);
@@ -96,6 +97,19 @@ public class MainService {
         }
 
         return result;
+    }
+
+    public static String replaceUmlauts(String input) {
+        if (input == null) return null;
+
+        return input
+                .replace("ä", "ae")
+                .replace("ö", "oe")
+                .replace("ü", "ue")
+                .replace("Ä", "Ae")
+                .replace("Ö", "Oe")
+                .replace("Ü", "Ue")
+                .replace("ß", "ss");
     }
 
     public static boolean publishUpdate(PublishUpdateDTO payload, CsCoRest csCoRest, AppProperties appProperties) {
@@ -191,10 +205,21 @@ public class MainService {
                                 originalTrackingUrl.contains("utm_medium=") &&
                                 originalTrackingUrl.contains("utm_campaign=")) {
 
-                                int idx = originalTrackingUrl.indexOf('?');
-                                if (idx != -1) {
-                                    originalTrackingUrl =  originalTrackingUrl.substring(0, idx);
+                                int firstIdx = originalTrackingUrl.indexOf('?');
+                                int secondIdx = originalTrackingUrl.indexOf('?', firstIdx + 1);
+
+                                if (secondIdx != -1) {
+                                    // Cut at second '?'
+                                    originalTrackingUrl = originalTrackingUrl.substring(0, secondIdx);
+                                } else if (firstIdx != -1) {
+                                    // Cut at first '?'
+                                    originalTrackingUrl = originalTrackingUrl.substring(0, firstIdx);
                                 }
+
+//                                int idx = originalTrackingUrl.indexOf('?');
+//                                if (idx != -1) {
+//                                    originalTrackingUrl =  originalTrackingUrl.substring(0, idx);
+//                                }
                             }
 
                             // create new GA4
