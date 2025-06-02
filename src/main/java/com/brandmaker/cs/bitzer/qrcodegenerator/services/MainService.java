@@ -42,7 +42,9 @@ public class MainService {
         String formattedCname = payload.getCampaignName().replace(" ", "_").replace("-", "_");
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String finalCustomObjectName = formattedCname + "_" + timestamp;
-        finalCustomObjectName = replaceUmlauts(finalCustomObjectName);
+        finalCustomObjectName = specialCharHandling(finalCustomObjectName);
+        finalCustomObjectName = normalizeUnderscores(finalCustomObjectName);
+        System.out.println(finalCustomObjectName);
 
         CustomObjectCreateDTO createDTO = new CustomObjectCreateDTO();
         createDTO.setName(finalCustomObjectName);
@@ -99,7 +101,7 @@ public class MainService {
         return result;
     }
 
-    public static String replaceUmlauts(String input) {
+    public static String specialCharHandling(String input) {
         if (input == null) return null;
 
         return input
@@ -109,7 +111,57 @@ public class MainService {
                 .replace("Ä", "Ae")
                 .replace("Ö", "Oe")
                 .replace("Ü", "Ue")
-                .replace("ß", "ss");
+                .replace("ß", "ss")
+                .replace("é", "e")
+                .replace("è", "e")
+                .replace("ê", "e")
+                .replace("á", "a")
+                .replace("à", "a")
+                .replace("â", "a")
+                .replace("ç", "c")
+                .replace("ñ", "n")
+                .replace("\"", "_")
+                .replace("'", "_")
+                .replace("&", "and")
+                .replace("/", "_")
+                .replace("\\", "_")
+                .replace(",", "_")
+                .replace(".", "_")
+                .replace(":", "_")
+                .replace(";", "_")
+                .replace("!", "_")
+                .replace("?", "_")
+                .replace("(", "_")
+                .replace(")", "_")
+                .replace("{", "_")
+                .replace("}", "_")
+                .replace("]", "_")
+                .replace("[", "_")
+                .replace("-", "_")
+                .replace("=", "equals")
+                .replace("+", "plus")
+                .replace("*", "_")
+                .replace("%", "percent")
+                .replace("$", "dollar")
+                .replace("@", "at")
+                .replace("#", "hash")
+                .replace("^", "_")
+                .replace("~", "_")
+                .replace("`", "_")
+                .replace("<", "_")
+                .replace(">", "_");
+    }
+
+    public static String normalizeUnderscores(String input) {
+        if (input == null) return null;
+
+        // 1. Collapse multiple underscores into one
+        String collapsed = input.replaceAll("_+", "_");
+
+        // 2. Remove leading and trailing underscores
+        String cleaned = collapsed.replaceAll("^_+|_+$", "");
+
+        return cleaned;
     }
 
     public static boolean publishUpdate(PublishUpdateDTO payload, CsCoRest csCoRest, AppProperties appProperties) {
