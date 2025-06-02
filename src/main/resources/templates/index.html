@@ -212,7 +212,7 @@
                     <div class="qr-lay-2-2">
                        <div class="icon-container" title="Edit"
                          data-qrcodeid='${qrCodeId}'
-                         data-campaignname='${campaignName}'
+                         data-campaignname='${qrCodeName}'
                          data-campaignmedium='${campaignMedium}'
                          data-language='${language}'
                          data-trackingurl='${trackingUrl}'
@@ -229,7 +229,7 @@
                             </svg>
                         </div>
 <!--                        <i class="fas fa-download icon-container" title="Download" onclick="displayDownloadModal('${qrCodeId}','${campaignMedium}')"></i>-->
-                        <div class="icon-container" title="Download" onclick="displayDownloadModal('${qrCodeId}','${campaignMedium}','${campaignName}','${language}')">
+                        <div class="icon-container" title="Download" onclick="displayDownloadModal('${qrCodeId}','${campaignMedium}','${qrCodeName}','${language}')">
                             <svg class="MP--MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="white"></path>
                             </svg>
@@ -698,6 +698,7 @@
     }
 
     function doDownload(qrCodeId, campaignMedium, campaignName, language) {
+        campaignName = campaignName.replace(/_\d{8}_\d{6}$/, "");
         let format = document.getElementById("format").value;
         let color = document.getElementById("color").value;
         let model = document.getElementById("model").value;

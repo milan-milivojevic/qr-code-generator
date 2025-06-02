@@ -21,6 +21,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -69,9 +71,10 @@ public class MainService {
             // We need to update created Object, so we could use its id as url code and set GA4
             String qrId = customObject.getId().toString();
 
-            // Sset tracking url GA4 params
+            // Set tracking url GA4 params
             String trackingUrl = payload.getTrackingUrl();
-            String params = "?utm_source=qr-" + qrId + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
+            String urlEncodedCname = URLEncoder.encode(payload.getCampaignName());
+            String params = "?utm_source=qr-" + qrId + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + urlEncodedCname;
             trackingUrl = trackingUrl + params.toLowerCase();
 
             createDTO.setAttributeValues(List.of(
@@ -275,7 +278,8 @@ public class MainService {
                             }
 
                             // create new GA4
-                            String params = "?utm_source=qr-" + id + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + payload.getCampaignName();
+                            String urlEncodedCname = URLEncoder.encode(payload.getCampaignName());
+                            String params = "?utm_source=qr-" + id + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + urlEncodedCname;
                             updatedTrackingUrl = originalTrackingUrl + params.toLowerCase();
                             System.out.println("updated tracking url 1: " + updatedTrackingUrl);
 
