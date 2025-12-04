@@ -72,10 +72,12 @@ public class MainService {
             String qrId = customObject.getId().toString();
 
             // Set tracking url GA4 params
-            String trackingUrl = payload.getTrackingUrl();
-            String urlEncodedCname = URLEncoder.encode(payload.getCampaignName());
-            String params = "?utm_source=qr-" + qrId + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + urlEncodedCname;
-            trackingUrl = trackingUrl + params.toLowerCase();
+            String trackingUrl = appendGa4Parameters(
+              payload.getTrackingUrl(),
+              qrId,
+              payload.getCampaignMedium(),
+              payload.getCampaignName()
+            );
 
             createDTO.setAttributeValues(List.of(
                     new CustomObjectAttributeValueDTO(1, qrId, "url_code", "TEXT"),
@@ -167,6 +169,44 @@ public class MainService {
         return cleaned;
     }
 
+    private static String appendGa4Parameters(String baseUrl, String qrId, String campaignMedium, String campaignName) {
+        if (baseUrl == null || baseUrl.isBlank()) {
+            return baseUrl;
+        }
+
+        String urlWithoutUtm = stripUtmParameters(baseUrl);
+
+        // Remove any trailing separators left after stripping
+        while (urlWithoutUtm.endsWith("?") || urlWithoutUtm.endsWith("&")) {
+            urlWithoutUtm = urlWithoutUtm.substring(0, urlWithoutUtm.length() - 1);
+        }
+
+        String separator = urlWithoutUtm.contains("?") ? "&" : "?";
+        String urlEncodedCname = URLEncoder.encode(campaignName, StandardCharsets.UTF_8);
+        String params = "utm_source=qr-" + qrId + "&utm_medium=" + campaignMedium + "&utm_campaign=" + urlEncodedCname;
+
+        return (urlWithoutUtm + separator + params).toLowerCase();
+    }
+
+    private static String stripUtmParameters(String url) {
+        if (url == null || url.isBlank()) {
+            return url;
+        }
+
+        String lowerUrl = url.toLowerCase();
+        int utmIdx = lowerUrl.indexOf("utm_source=");
+        if (utmIdx == -1) {
+            return url;
+        }
+
+        int separatorIdx = utmIdx;
+        while (separatorIdx > 0 && (url.charAt(separatorIdx - 1) == '?' || url.charAt(separatorIdx - 1) == '&')) {
+            separatorIdx--;
+        }
+
+        return url.substring(0, separatorIdx);
+    }
+
     public static boolean publishUpdate(PublishUpdateDTO payload, CsCoRest csCoRest, AppProperties appProperties) {
         log.info("Publish update: {}", payload.toString());
         boolean result = false;
@@ -253,34 +293,13 @@ public class MainService {
                     }
                     case "tracking_url" -> {
                         String originalTrackingUrl = payload.getTrackingUrl();
-                        String updatedTrackingUrl = "";
                         if (originalTrackingUrl != null && !originalTrackingUrl.isEmpty()) {
-                            // Remove old GA4 if they exist
-                            if (originalTrackingUrl.contains("utm_source=") &&
-                                originalTrackingUrl.contains("utm_medium=") &&
-                                originalTrackingUrl.contains("utm_campaign=")) {
-
-                                int firstIdx = originalTrackingUrl.indexOf('?');
-                                int secondIdx = originalTrackingUrl.indexOf('?', firstIdx + 1);
-
-                                if (secondIdx != -1) {
-                                    // Cut at second '?'
-                                    originalTrackingUrl = originalTrackingUrl.substring(0, secondIdx);
-                                } else if (firstIdx != -1) {
-                                    // Cut at first '?'
-                                    originalTrackingUrl = originalTrackingUrl.substring(0, firstIdx);
-                                }
-
-//                                int idx = originalTrackingUrl.indexOf('?');
-//                                if (idx != -1) {
-//                                    originalTrackingUrl =  originalTrackingUrl.substring(0, idx);
-//                                }
-                            }
-
-                            // create new GA4
-                            String urlEncodedCname = URLEncoder.encode(payload.getCampaignName());
-                            String params = "?utm_source=qr-" + id + "&utm_medium=" + payload.getCampaignMedium() + "&utm_campaign=" + urlEncodedCname;
-                            updatedTrackingUrl = originalTrackingUrl + params.toLowerCase();
+                            String updatedTrackingUrl = appendGa4Parameters(
+                              originalTrackingUrl,
+                              String.valueOf(id),
+                              payload.getCampaignMedium(),
+                              payload.getCampaignName()
+                            );
                             System.out.println("updated tracking url 1: " + updatedTrackingUrl);
 
                             attr.setValue(updatedTrackingUrl);

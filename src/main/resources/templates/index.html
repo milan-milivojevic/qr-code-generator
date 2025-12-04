@@ -73,6 +73,25 @@
         cLog("ERROR: QR Codes not loaded.");
     }
 
+    function extractBaseUrl(trackingUrl) {
+        if (!trackingUrl) {
+            return "";
+        }
+
+        const lowerUrl = trackingUrl.toLowerCase();
+        let utmIndex = lowerUrl.indexOf("utm_source=");
+        if (utmIndex === -1) {
+            return trackingUrl;
+        }
+
+        while (utmIndex > 0 && (trackingUrl.charAt(utmIndex - 1) === '?' || trackingUrl.charAt(utmIndex - 1) === '&')) {
+            utmIndex--;
+        }
+
+        let base = trackingUrl.substring(0, utmIndex);
+        return base.replace(/[?&]$/, '');
+    }
+
     function searchQRCodes() {
         const term = document.getElementById('search-input').value.trim().toLowerCase();
         console.log("TERM:", term);
@@ -128,9 +147,11 @@
             const urlCode = qrCode.attributeValues.find(attr => attr.attributeName === "url_code")?.value || "Not Found";
             const urlEncoded = qrCode.attributeValues.find(attr => attr.attributeName === "url_encoded")?.value || "Not Found";
             const trackingUrl = qrCode.attributeValues.find(attr => attr.attributeName === "tracking_url")?.value || "Not Found";
+            const baseUrl = extractBaseUrl(trackingUrl);
             const language = qrCode.attributeValues.find(attr => attr.attributeName === "language")?.value || "Not Found";
             const additionalInfo = qrCode.attributeValues.find(attr => attr.attributeName === "additional_information")?.value || "Not Found";
             const escapedAddInfo = additionalInfo.replace(/"/g, '\\"').replace(/'/g, "\\'");
+            const escapedBaseUrl = baseUrl.replace(/"/g, '\\"').replace(/'/g, "\\'");
             const publishedValue = qrCode.attributeValues.find(attr => attr.attributeName === "published")?.value || "Not Found";
 
             let published = "";
@@ -148,11 +169,11 @@
                     <div class="qr-lay-1-1">
                         <div class="qr-lay-1-1-1">
                             <div class="qr-lay-field">
-                                <b data-translate-key="4" >Name of measure</b><br>
+                                <b data-translate-key="4" >utm_campaign</b><br>
                                 ${campaignName}
                             </div>
                             <div class="qr-lay-field">
-                                <b data-translate-key="5">Measure</b><br>
+                                <b data-translate-key="5">utm_medium</b><br>
                                 ${campaignMedium}
                             </div>
                         </div>
@@ -206,7 +227,7 @@
                         </div>
                         <div class="qr-lay-2-1-2 qr-lay-field">
                             <b data-translate-key="12">Tracking URL (editable at a later date)</b><br>
-                            <input type="text" placeholder="${trackingUrl}" value="${trackingUrl}"readonly style="color: #777;">
+                            <input type="text" placeholder="${trackingUrl}" value="${trackingUrl}" readonly disabled style="color: #777;">
                         </div>
                     </div>
                     <div class="qr-lay-2-2">
@@ -217,6 +238,7 @@
                          data-language='${language}'
                          data-trackingurl='${trackingUrl}'
                          data-additionalinfo='${additionalInfo}'
+                         data-baseurl='${escapedBaseUrl}'
                          onclick="displayEditModal(this)">
                             <svg class="MP--MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="white"></path>
@@ -318,9 +340,9 @@
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('ce-modal-container')">x</button>
             <h2 style="padding-top: 20px" data-translate-key="3">Create new QR code</h2>
-            <label for="campaign-name-input" style="text-align: left; padding-left: 95px; margin-top: 30px;">Name of measure</label>
+            <label for="campaign-name-input" style="text-align: left; padding-left: 95px; margin-top: 30px;">utm_campaign</label>
             <input type="text" data-translate-key="4" placeholder="Please enter here" id="campaign-name-input"><br>
-            <label for="campaign-medium-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Measure</label>
+            <label for="campaign-medium-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">utm_medium</label>
             <input type="text" list="mediums-list" data-translate-key="5" placeholder="Please enter here" id="campaign-medium-input" autocomplete="off"><br>
             <datalist id="mediums-list">
                 <option value="Flyer">
@@ -337,8 +359,8 @@
                 <option value="German">
                 <option value="English">
             </datalist>
-            <label for="tracking-url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Tracking URL (editable at a later date)</label>
-            <input type="text" data-translate-key="12" placeholder="Please enter here" id="tracking-url-input"><br>
+            <label for="url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">URL</label>
+            <input type="text" data-translate-key="12" placeholder="Please enter here" id="url-input"><br>
             <label for="additional-info-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Additional information</label>
             <input type="text" data-translate-key="8" placeholder="Please enter here" id="additional-info-input"><br>
             <button id="create-button" data-translate-key="16" onclick="doCreate()">Create</button>
@@ -391,17 +413,17 @@
         let campName = document.getElementById('campaign-name-input').value;
         let campMedium = document.getElementById('campaign-medium-input').value;
         let lang = document.getElementById('language-input').value;
-        let trackingUrl = document.getElementById('tracking-url-input').value;
+        let url = document.getElementById('url-input').value;
         let addInfo = document.getElementById('additional-info-input').value;
 
         // Validate required fields
         if (campName.trim() === '') {
-            alert('Name of measure is required!');
+            alert('utm_campaign is required!');
             document.getElementById('campaign-name-input').focus();
             return; // Stop processing if validation fails.
         }
         if (campMedium.trim() === '') {
-            alert('Measure is required!');
+            alert('utm_medium is required!');
             document.getElementById('campaign-medium-input').focus();
             return;
         }
@@ -410,9 +432,9 @@
             document.getElementById('campaign-medium-input').focus();
             return;
         }
-        if (trackingUrl.trim() === '') {
-            alert('Tracking URL is required!');
-            document.getElementById('campaign-medium-input').focus();
+        if (url.trim() === '') {
+            alert('URL is required!');
+            document.getElementById('url-input').focus();
             return;
         }
 
@@ -420,7 +442,7 @@
             campaignName: campName,
             campaignMedium: campMedium,
             language: lang,
-            trackingUrl: trackingUrl,
+            trackingUrl: url,
             additionalInfo: addInfo
         }
 
@@ -492,6 +514,7 @@
         const campaignMedium = data.dataset.campaignmedium;
         const language = data.dataset.language;
         const trackingUrl = data.dataset.trackingurl;
+        const baseUrl = data.dataset.baseurl || "";
         const additionalInfo = data.dataset.additionalinfo;
 
         const appDiv = document.getElementById('app');
@@ -502,9 +525,9 @@
         <div id="ce-modal">
             <button id="close-modal-button" onclick="closeModal('edit-modal-container')">x</button>
             <h2 style="padding-top: 20px" data-translate-key="17">Edit QR code</h2>
-            <label for="campaign-name-input" style="text-align: left; padding-left: 95px; margin-top: 30px;">Name of measure</label>
+            <label for="campaign-name-input" style="text-align: left; padding-left: 95px; margin-top: 30px;">utm_campaign</label>
             <input type="text" placeholder="${campaignName}" value="${campaignName}" id="campaign-name-input"><br>
-            <label for="campaign-medium-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Measure</label>
+            <label for="campaign-medium-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">utm_medium</label>
             <input type="text" list="mediums-list" placeholder="${campaignMedium}" value="${campaignMedium}" id="campaign-medium-input" autocomplete="off" disabled><br>
             <datalist id="mediums-list">
                 <option value="Flyer">
@@ -521,8 +544,8 @@
                 <option value="German">
                 <option value="English">
             </datalist>
-            <label for="tracking-url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Tracking URL</label>
-            <input type="text" placeholder="${trackingUrl}" value="${trackingUrl}" id="tracking-url-input"><br>
+            <label for="url-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">URL</label>
+            <input type="text" placeholder="${baseUrl}" value="${baseUrl}" id="url-input"><br>
             <label for="additional-info-input" style="text-align: left; padding-left: 95px; margin-top: 15px;">Additional information</label>
             <input type="text" placeholder='${additionalInfo}' value='${additionalInfo}' id="additional-info-input"><br>
             <button id="create-button" data-translate-key="18" onclick="doEdit(${qrCodeId})">Edit</button>
@@ -541,14 +564,20 @@
         let campName = document.getElementById('campaign-name-input').value;
         let campMedium = document.getElementById('campaign-medium-input').value;
         let lang = document.getElementById('language-input').value;
-        let trackingUrl = document.getElementById('tracking-url-input').value;
+        let url = document.getElementById('url-input').value;
         let addInfo = document.getElementById('additional-info-input').value;
+
+        if (url.trim() === '') {
+            alert('URL is required!');
+            document.getElementById('url-input').focus();
+            return;
+        }
 
         let payload = {
             campaignName: campName,
             campaignMedium: campMedium,
             language: lang,
-            trackingUrl: trackingUrl,
+            trackingUrl: url,
             additionalInfo: addInfo
         }
 
